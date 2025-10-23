@@ -1,0 +1,43 @@
+Package: annoLinker
+Type: Package
+Title: Annotating genomic regions through chromatin interaction links
+Version: 0.1.0
+Authors@R:
+    person(given="Jianhong", family="Ou", email="jou@morgridge.org",
+        role=c("aut", "cre"), comment=c(ORCID="0000-0002-8652-2488"))
+Description: Fast annotation of genomic peaks using DNA interaction data by building
+    interaction networks with igraph. Peaks overlapping any node in a connected
+    subgraph are annotated with all genes in that subgraph.
+LazyData: false
+License: GPL-3
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+VignetteBuilder: knitr
+biocViews: Visualization
+Depends:
+    R (>= 4.4.0)
+Imports:
+    AnnotationDbi,
+    BiocGenerics,
+    future.apply,
+    GenomicRanges,
+    GenomeInfoDb,
+    igraph,
+    IRanges,
+    InteractionSet,
+    methods,
+    S4Vectors,
+    Seqinfo,
+    trackViewer,
+    visNetwork
+Suggests:
+    BiocStyle,
+    knitr,
+    rtracklayer,
+    rmarkdown,
+    testthat,
+    TxDb.Drerio.UCSC.danRer10.refGene,
+    org.Dr.eg.db
+URL: https://github.com/jianhong/annoLinker
+BugReports: https://github.com/jianhong/annoLinker/issues
