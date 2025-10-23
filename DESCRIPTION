@@ -34,7 +34,6 @@ Imports:
     visNetwork
 Suggests:
     BiocStyle,
-    pkgdown,
     knitr,
     rtracklayer,
     rmarkdown,
