@@ -241,11 +241,13 @@ find_shortest_path <- function(peak_ol_anno, interaction_graph, parallel=FALSE) 
     )
   }else{
     sp <- lapply(seq.int(nrow(peak_ol_anno_subset)), function(i){
-      shortest_paths(interaction_graph$graph,
+      as_edgelist(interaction_graph$graph)[
+        shortest_paths(interaction_graph$graph,
                      from = as.character(peak_ol_anno_subset$subjectHits.peak[[i]]),
                      to = as.character(peak_ol_anno_subset$subjectHits.annotation[[i]]),
                      mode = 'all',
-                     output = "epath")$epath[[1]]
+                     output = "epath")$epath[[1]], ,
+        drop = FALSE]
     })
   }
   names(sp) <- apply(peak_ol_anno_subset, 1, paste, collapse = ",")
@@ -271,6 +273,10 @@ annotate_peaks_with_clusters <- function(
   annoted_peaks$feature_end <- end(annotations)
   annoted_peaks$feature_strand <- strand(annotations)
   mcols(annoted_peaks) <- cbind(mcols(annoted_peaks), mcols(annotations))
+  keep <- !duplicated(annoted_peaks) |
+    !duplicated(mcols(annoted_peaks))
+  annoted_peaks <- annoted_peaks[keep]
+  peak_ol_anno <- peak_ol_anno[keep, , drop=FALSE]
   annoted_peaks$evidences <- vapply(evidences, function(.ele) {
     if (nrow(.ele)) {
       paste(paste(interRegion[as.numeric(.ele[, 1])],

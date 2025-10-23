@@ -14,7 +14,6 @@
 #'   (e.g., c(-5000, 5000))
 #' @param cluster_method Character, clustering method: "components" (connected
 #'   components), "louvain", "walktrap", or "infomap"
-#' @param min_cluster_size Integer, minimum genes per cluster to report (default: 1)
 #' @param extend_anchors Integer, bp to extend interaction anchors for
 #'   overlap detection (default: 0)
 #' @param interactionDistanceRange Numeric vector of length 2 defining the minimal
@@ -34,7 +33,7 @@
 #' @examples
 #' ## read the peaks and interactions
 #' library(rtracklayer)
-#' extPath <- system.file('extdata', package='annoLinker)
+#' extPath <- system.file('extdata', package='annoLinker')
 #' peaks <- rtracklayer::import(file.path(extPath, 'peaks.bed'))
 #' interactions <- rtracklayer::import(file.path(extPath, 'interaction.bedpe'))
 #' library(TxDb.Drerio.UCSC.danRer10.refGene)
@@ -47,7 +46,6 @@ annoLinker <- function(
   bindingType = c("startSite", "endSite"),
   bindingRegion = c(-5000, 5000),
   cluster_method = c("components", "louvain", "walktrap", "infomap"),
-  min_cluster_size = 1,
   extend_anchors = 0,
   interactionDistanceRange = c(10000, 10000000),
   parallel = FALSE,

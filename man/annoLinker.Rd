@@ -11,7 +11,6 @@ annoLinker(
   bindingType = c("startSite", "endSite"),
   bindingRegion = c(-5000, 5000),
   cluster_method = c("components", "louvain", "walktrap", "infomap"),
-  min_cluster_size = 1,
   extend_anchors = 0,
   interactionDistanceRange = c(10000, 1e+07),
   parallel = FALSE,
@@ -35,8 +34,6 @@ interaction data (e.g., Hi-C, ChIA-PET)}
 \item{cluster_method}{Character, clustering method: "components" (connected
 components), "louvain", "walktrap", or "infomap"}
 
-\item{min_cluster_size}{Integer, minimum genes per cluster to report (default: 1)}
-
 \item{extend_anchors}{Integer, bp to extend interaction anchors for
 overlap detection (default: 0)}
 
@@ -59,4 +56,14 @@ GRanges if no annotations found
 Fast annotation of genomic peaks using DNA interaction data by building
 interaction networks with igraph. Peaks overlapping any node in a connected
 subgraph are annotated with all genes in that subgraph.
+}
+\examples{
+## read the peaks and interactions
+library(rtracklayer)
+extPath <- system.file('extdata', package='annoLinker')
+peaks <- rtracklayer::import(file.path(extPath, 'peaks.bed'))
+interactions <- rtracklayer::import(file.path(extPath, 'interaction.bedpe'))
+library(TxDb.Drerio.UCSC.danRer10.refGene)
+annoData <- genes(TxDb.Drerio.UCSC.danRer10.refGene)
+anno <- annoLinker(peaks, annoData, interactions, verborse=TRUE)
 }

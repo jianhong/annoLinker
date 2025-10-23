@@ -32,3 +32,16 @@ components), "louvain", "walktrap", or "infomap"}
 \description{
 Plot interaction network for visualization
 }
+\examples{
+anno <- readRDS(system.file('extdata', 'sample_res.rds', package='annoLinker'))
+library(org.Dr.eg.db)
+library(TxDb.Drerio.UCSC.danRer10.refGene)
+plotEvidence(anno$interaction_graph,
+ evidence=anno$annotated_peaks$evidences[1],
+ output='htmlWidget')
+plotEvidence(anno$interaction_graph,
+ evidence=anno$annotated_peaks$evidences[1],
+ output='trackPlot',
+ txdb=TxDb.Drerio.UCSC.danRer10.refGene,
+ org=org.Dr.eg.db)
+}
