@@ -1,0 +1,65 @@
+---
+title: "annoLinker Vignette: Annotating genomic regions through chromatin interaction links"
+author: "Jianhong Ou"
+date: "`r BiocStyle::doc_date()`"
+package: "`r BiocStyle::pkg_ver('annoLinker')`"
+abstract: >
+  Annotating genomic regions through chromatin interaction links.
+vignette: >
+  %\VignetteIndexEntry{annoLinker Vignette: Annotating genomic regions through chromatin interaction links}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+output:
+  html_document:
+    theme: simplex
+    toc: true
+    toc_float: true
+    toc_depth: 4
+    fig_caption: true
+---
+
+```{r, echo=FALSE, results="hide", warning=FALSE}
+suppressPackageStartupMessages({
+  library(annoLinker)
+  library(rtracklayer)
+  library(TxDb.Drerio.UCSC.danRer10.refGene)
+  library(org.Dr.eg.db)
+})
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+## Quick start
+
+```{r quickstart}
+library(annoLinker)
+library(rtracklayer)
+library(TxDb.Drerio.UCSC.danRer10.refGene)
+library(org.Dr.eg.db)
+txdb <- TxDb.Drerio.UCSC.danRer10.refGene
+org <- org.Dr.eg.db
+extPath <- system.file('extdata', package='annoLinker')
+## load peaks
+peaks <- rtracklayer::import(file.path(extPath, 'peaks.bed'))
+## load interactions
+interactions <- rtracklayer::import(file.path(extPath, 'interaction.bedpe'))
+## load annotation data
+annoData <- genes(txdb)
+anno <- annoLinker(peaks, annoData, interactions, verbose=TRUE)
+n <- 1 #length(anno$annotated_peaks$evidences)
+plotEvidence(anno$interaction_graph,
+             evidence=anno$annotated_peaks$evidences[n],
+             output='htmlWidget')
+plotEvidence(anno$interaction_graph,
+             evidence=anno$annotated_peaks$evidences[n],
+             output='trackPlot',
+             txdb=TxDb.Drerio.UCSC.danRer10.refGene,
+             org=org.Dr.eg.db,
+             interestedRegion=anno$annotated_peaks[n])
+```
+
+## SessionInfo
+
+```{r sessioninfo, echo=FALSE}
+sessionInfo()
+```
+

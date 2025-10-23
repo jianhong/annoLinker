@@ -27,12 +27,14 @@ Imports:
     IRanges,
     InteractionSet,
     methods,
+    progressr,
     S4Vectors,
     Seqinfo,
     trackViewer,
     visNetwork
 Suggests:
     BiocStyle,
+    pkgdown,
     knitr,
     rtracklayer,
     rmarkdown,

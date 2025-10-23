@@ -65,7 +65,8 @@ filterInteractions <- function(interactions, interactionDistanceRange) {
       ## is Pairs
       interactions <- GInteractions(
         first(interactions),
-        second(interactions)
+        second(interactions),
+        score=mcols(interactions)$score
       )
     }
     if (is(interactions, "GRanges")) {
@@ -83,7 +84,8 @@ filterInteractions <- function(interactions, interactionDistanceRange) {
       interactions <-
         GInteractions(
           GRanges(seqnames(interactions), HiC_FIRST),
-          GRanges(seqnames(interactions), HiC_SECOND)
+          GRanges(seqnames(interactions), HiC_SECOND),
+          score = mcols(interactions)$score
         )
     }
   }
@@ -128,12 +130,16 @@ get_annotation_regions <- function(annoData, bindingType, bindingRegion) {
 # BUILD INTERACTION GRAPH
 # ============================================================================
 #' @importFrom igraph graph_from_data_frame simplify
-build_interaction_graph <- function(anchors, cluster_method, ...) {
+build_interaction_graph <- function(anchors, weight, cluster_method, ...) {
   # Create edge list: genes connected through same interaction
   edge_list <- do.call(cbind, anchors)
 
   if (nrow(edge_list) == 0) {
     return(list(graph = NULL, clusters = NULL))
+  }
+
+  if(!missing(weight)){
+    edge_list <- cbind(edge_list, weight=weight)
   }
 
   # Build graph
@@ -216,40 +222,53 @@ add_cluster_id <- function(hits, cluster_df) {
 # ============================================================================
 #' @importFrom future.apply future_lapply
 #' @importFrom igraph shortest_paths as_edgelist
-find_shortest_path <- function(peak_ol_anno, interaction_graph, parallel=FALSE) {
+#' @importFrom progressr with_progress progressor
+find_shortest_path <- function(peak_ol_anno, interaction_graph,
+                               parallel=FALSE, verbose=FALSE) {
   peak_ol_anno_subset <- unique(peak_ol_anno[, c(
     "subjectHits.peak",
     "subjectHits.annotation"
   )])
   ## do not try shortest_paths in batch, unpredictable
-  if(parallel){
-    sp <- future_lapply(
-      seq_len(nrow(peak_ol_anno_subset)),
-      function(i) {
-        as_edgelist(interaction_graph$graph)[
-          shortest_paths(
-            interaction_graph$graph,
-            from = as.character(peak_ol_anno_subset$subjectHits.peak[[i]]),
-            to = as.character(peak_ol_anno_subset$subjectHits.annotation[[i]]),
-            mode = "all",
-            output = "epath"
-          )$epath[[1]], ,
-          drop = FALSE
-        ]
-      },
-      future.seed = TRUE
-    )
-  }else{
-    sp <- lapply(seq.int(nrow(peak_ol_anno_subset)), function(i){
-      as_edgelist(interaction_graph$graph)[
-        shortest_paths(interaction_graph$graph,
-                     from = as.character(peak_ol_anno_subset$subjectHits.peak[[i]]),
-                     to = as.character(peak_ol_anno_subset$subjectHits.annotation[[i]]),
-                     mode = 'all',
-                     output = "epath")$epath[[1]], ,
-        drop = FALSE]
-    })
+
+  # choose the apply function based on `parallel`
+  apply_fun <- if (parallel) future_lapply else lapply
+
+  # define the core worker function
+  get_shortest_path_edges <- function(i, p = NULL) {
+    sp_edges <- as_edgelist(interaction_graph$graph)[
+      shortest_paths(
+        interaction_graph$graph,
+        from = as.character(peak_ol_anno_subset$subjectHits.peak[[i]]),
+        to   = as.character(peak_ol_anno_subset$subjectHits.annotation[[i]]),
+        mode = "all",
+        output = "epath"
+      )$epath[[1]],
+      ,
+      drop = FALSE
+    ]
+
+    if (!is.null(p)) p()  # update progress if verbose
+
+    sp_edges
   }
+
+  # wrap everything depending on verbosity
+  n_pairs <- nrow(peak_ol_anno_subset)
+  args <- list(X=seq_len(n_pairs), FUN=get_shortest_path_edges)
+  if(parallel){
+    args$future.seed <- TRUE
+  }
+  sp <- if(verbose){
+    on.exit(message('Please do not forget to run future::plan(future::sequential) to release the resources'))
+    with_progress({
+      args$p <- progressor(steps = n_pairs)
+      do.call(apply_fun, args)
+    })
+  }else{
+    do.call(apply_fun, args)
+  }
+
   names(sp) <- apply(peak_ol_anno_subset, 1, paste, collapse = ",")
   sp
 }

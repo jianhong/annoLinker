@@ -20,7 +20,7 @@
 #'   and maximal distance of interactions. This is used to make sure the annotations
 #'   are not supper far away.
 #' @param parallel Logical, use future_lapply to do parallel computing or not.
-#' @param verborse Logical, print the message or not
+#' @param verbose Logical, print the message or not
 #' @param ... Parameters for cluster. see \link[igraph]{cluster_louvain},
 #' \link[igraph]{cluster_walktrap}, and \link[igraph]{cluster_infomap}.
 #' @return GRanges object with peaks annotated by gene clusters, or empty
@@ -38,7 +38,7 @@
 #' interactions <- rtracklayer::import(file.path(extPath, 'interaction.bedpe'))
 #' library(TxDb.Drerio.UCSC.danRer10.refGene)
 #' annoData <- genes(TxDb.Drerio.UCSC.danRer10.refGene)
-#' anno <- annoLinker(peaks, annoData, interactions, verborse=TRUE)
+#' anno <- annoLinker(peaks, annoData, interactions, verbose=TRUE)
 annoLinker <- function(
   peaks,
   annoData,
@@ -49,23 +49,28 @@ annoLinker <- function(
   extend_anchors = 0,
   interactionDistanceRange = c(10000, 10000000),
   parallel = FALSE,
-  verborse = FALSE,
+  verbose = FALSE,
   ...
 ) {
   # Validate inputs
   bindingType <- match.arg(bindingType)
   cluster_method <- match.arg(cluster_method)
   validate_inputs_graph(peaks, annoData, interactions, bindingRegion, interactionDistanceRange)
-  if (verborse) {
+  if (verbose) {
     message("Step 1/5: Building interaction network graph...")
   }
   # Filter interactions
   interactions <- filterInteractions(interactions, interactionDistanceRange)
   # Extract interaction anchor regions
   anchors <- anchorIds(interactions)
+  weight <- mcols(interactions)$score
+  if(all(weight==weight[1])){
+    weight <- NULL
+  }
   # Build interaction network using igraph
   interaction_graph <- build_interaction_graph(
     anchors,
+    weight,
     cluster_method,
     ...
   )
@@ -75,7 +80,7 @@ annoLinker <- function(
     return(GRanges())
   }
 
-  if (verborse) {
+  if (verbose) {
     message(sprintf(
       "Graph has %d nodes and %d edges in %d clusters, on average %f nodes in each cluster",
       vcount(interaction_graph$graph),
@@ -85,7 +90,7 @@ annoLinker <- function(
         length(unique(interaction_graph$clusters$cluster_id))
     ))
   }
-  if (verborse) {
+  if (verbose) {
     message("Step 2/5: Finding interaction anchors overlapping genes and peaks...")
   }
   interRegion <- regions(interactions)
@@ -105,7 +110,7 @@ annoLinker <- function(
     return(GRanges())
   }
 
-  if (verborse) {
+  if (verbose) {
     message("Step 3/5: Finding genes and peaks in the same cluster...")
   }
   # convert interRegion hit id to cluster id
@@ -122,12 +127,13 @@ annoLinker <- function(
     return(GRanges())
   }
 
-  if (verborse) {
+  if (verbose) {
     message("Step 4/5: Finding evidence of the annotation...")
   }
-  evidences <- find_shortest_path(peak_ol_anno, interaction_graph, parallel)
+  evidences <- find_shortest_path(peak_ol_anno, interaction_graph,
+                                  parallel, verbose)
 
-  if (verborse) {
+  if (verbose) {
     message("Step 5/5: Annotating peaks with gene clusters...")
   }
 
@@ -139,7 +145,7 @@ annoLinker <- function(
     interRegion
   )
 
-  if (verborse) {
+  if (verbose) {
     message(sprintf(
       "Annotated %d peaks with gene clusters",
       length(annotated_peaks)

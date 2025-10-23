@@ -1,0 +1,18 @@
+url: https://jianhong.github.io/annoLinker
+
+template:
+  params:
+    bootswatch: flatly
+    #ganalytics: UA-99999999-9
+
+home:
+  title: "Demo for annoLinker package"
+  type: inverse
+
+
+navbar:
+  right:
+   - icon: fa-github
+     href: https://github.com/jianhong/annoLinker
+
+

@@ -11,7 +11,8 @@ plotEvidence(
   ...,
   output = c("graph", "htmlWidget", "trackPlot"),
   txdb,
-  org
+  org,
+  interestedRegion
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ components), "louvain", "walktrap", or "infomap"}
 \item{output}{Output of the plot.}
 
 \item{txdb, org}{The TxDb and OrgDb object used for annotation plot.}
+
+\item{interestedRegion}{The region of annotated to.}
 }
 \description{
 Plot interaction network for visualization
@@ -36,12 +39,14 @@ Plot interaction network for visualization
 anno <- readRDS(system.file('extdata', 'sample_res.rds', package='annoLinker'))
 library(org.Dr.eg.db)
 library(TxDb.Drerio.UCSC.danRer10.refGene)
+n <- 1 #length(anno$annotated_peaks$evidences)
 plotEvidence(anno$interaction_graph,
- evidence=anno$annotated_peaks$evidences[1],
+ evidence=anno$annotated_peaks$evidences[n],
  output='htmlWidget')
 plotEvidence(anno$interaction_graph,
- evidence=anno$annotated_peaks$evidences[1],
+ evidence=anno$annotated_peaks$evidences[n],
  output='trackPlot',
  txdb=TxDb.Drerio.UCSC.danRer10.refGene,
- org=org.Dr.eg.db)
+ org=org.Dr.eg.db,
+ interestedRegion=anno$annotated_peaks[n])
 }

@@ -14,7 +14,7 @@ annoLinker(
   extend_anchors = 0,
   interactionDistanceRange = c(10000, 1e+07),
   parallel = FALSE,
-  verborse = FALSE,
+  verbose = FALSE,
   ...
 )
 }
@@ -43,7 +43,7 @@ are not supper far away.}
 
 \item{parallel}{Logical, use future_lapply to do parallel computing or not.}
 
-\item{verborse}{Logical, print the message or not}
+\item{verbose}{Logical, print the message or not}
 
 \item{...}{Parameters for cluster. see \link[igraph]{cluster_louvain},
 \link[igraph]{cluster_walktrap}, and \link[igraph]{cluster_infomap}.}
@@ -65,5 +65,5 @@ peaks <- rtracklayer::import(file.path(extPath, 'peaks.bed'))
 interactions <- rtracklayer::import(file.path(extPath, 'interaction.bedpe'))
 library(TxDb.Drerio.UCSC.danRer10.refGene)
 annoData <- genes(TxDb.Drerio.UCSC.danRer10.refGene)
-anno <- annoLinker(peaks, annoData, interactions, verborse=TRUE)
+anno <- annoLinker(peaks, annoData, interactions, verbose=TRUE)
 }
