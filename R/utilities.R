@@ -292,28 +292,35 @@ annotate_peaks_with_clusters <- function(
   annoted_peaks$feature_end <- end(annotations)
   annoted_peaks$feature_strand <- strand(annotations)
   mcols(annoted_peaks) <- cbind(mcols(annoted_peaks), mcols(annotations))
+  annoted_peaks$peak_bin <-
+    as.character(interRegion[peak_ol_anno$subjectHits.peak])
+  annoted_peaks$feature_bin <-
+    as.character(interRegion[peak_ol_anno$subjectHits.annotation])
   keep <- !duplicated(annoted_peaks) |
     !duplicated(mcols(annoted_peaks))
   annoted_peaks <- annoted_peaks[keep]
   peak_ol_anno <- peak_ol_anno[keep, , drop=FALSE]
-  annoted_peaks$evidences <- vapply(evidences, function(.ele) {
-    if (nrow(.ele)) {
-      paste(paste(interRegion[as.numeric(.ele[, 1])],
-        interRegion[as.numeric(.ele[, 2])],
-        sep = " | "
-      ), collapse = "; ")
-    } else {
-      ""
-    }
-  }, FUN.VALUE = character(1L))[
-    apply(
-      peak_ol_anno[, c(
-        "subjectHits.peak",
-        "subjectHits.annotation"
-      )], 1,
-      paste,
-      collapse = ","
-    )
-  ]
+  if(length(evidences)>0){
+    annoted_peaks$evidences <- vapply(evidences, function(.ele) {
+      if (nrow(.ele)) {
+        paste(paste(interRegion[as.numeric(.ele[, 1])],
+                    interRegion[as.numeric(.ele[, 2])],
+                    sep = " | "
+        ), collapse = "; ")
+      } else {
+        ""
+      }
+    }, FUN.VALUE = character(1L))[
+      apply(
+        peak_ol_anno[, c(
+          "subjectHits.peak",
+          "subjectHits.annotation"
+        )], 1,
+        paste,
+        collapse = ","
+      )
+    ]
+  }
+
   return(annoted_peaks)
 }

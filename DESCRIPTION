@@ -1,7 +1,7 @@
 Package: annoLinker
 Type: Package
 Title: Annotating genomic regions through chromatin interaction links
-Version: 0.1.0
+Version: 0.1.1
 Authors@R:
     person(given="Jianhong", family="Ou", email="jou@morgridge.org",
         role=c("aut", "cre"), comment=c(ORCID="0000-0002-8652-2488"))

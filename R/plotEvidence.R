@@ -1,59 +1,73 @@
 #' Plot interaction network for visualization
 #'
-#' @param g Interaction graph output by \link{annoLinker}
-#' @param evidence The evidence to highlighted
-#' @param cluster_method Character, clustering method: "components" (connected
-#'   components), "louvain", "walktrap", or "infomap"
-#' @param ... parameters for cluster. see \link[igraph]{cluster_louvain},
-#'   \link[igraph]{cluster_walktrap}, and \link[igraph]{cluster_infomap}.
+#' @param anno An object of annoLinkerResult output by \link{annoLinker}
+#' @param event Number to indicate the event to be plot
 #' @param output Output of the plot.
 #' @param txdb,org The TxDb and OrgDb object used for annotation plot.
-#' @param interestedRegion The region of annotated to.
 #' @export
 #' @importFrom visNetwork toVisNetworkData visOptions visNetwork
-#' @importFrom igraph induced_subgraph as_edgelist
+#' @importFrom igraph induced_subgraph as_edgelist shortest_paths add_vertices add_edges
 #' @examples
 #' anno <- readRDS(system.file('extdata', 'sample_res.rds', package='annoLinker'))
 #' library(org.Dr.eg.db)
 #' library(TxDb.Drerio.UCSC.danRer10.refGene)
 #' n <- 1 #length(anno$annotated_peaks$evidences)
-#' plotEvidence(anno$interaction_graph,
-#'  evidence=anno$annotated_peaks$evidences[n],
+#' plotEvidence(anno, event=n,
 #'  output='htmlWidget')
-#' plotEvidence(anno$interaction_graph,
-#'  evidence=anno$annotated_peaks$evidences[n],
+#' plotEvidence(anno, event=n,
 #'  output='trackPlot',
 #'  txdb=TxDb.Drerio.UCSC.danRer10.refGene,
-#'  org=org.Dr.eg.db,
-#'  interestedRegion=anno$annotated_peaks[n])
+#'  org=org.Dr.eg.db)
 plotEvidence <- function(
-  g, evidence,
-  cluster_method = c("components", "louvain", "walktrap", "infomap"),
-  ...,
-  output = c("graph", "htmlWidget", "trackPlot"),
-  txdb, org, interestedRegion
+    anno, event,
+    output = c("graph", "htmlWidget", "trackPlot"),
+    txdb, org
 ) {
-  stopifnot(is.character(evidence))
-  stopifnot(length(evidence) == 1)
-  stopifnot(is(g, "igraph"))
-  cluster_method <- match.arg(cluster_method)
+  stopifnot(is(anno, 'annoLinkerResult'))
+  stopifnot(is.numeric(event))
+  stopifnot(length(event) == 1)
+  if(event>length(anno)){
+    stop("event parameter is greater than available data.")
+  }
+  if(event<0){
+    stop("event number could not smaller than 1")
+  }
+  event <- round(event)
   output <- match.arg(output)
   if (output == "trackPlot") {
     if (!missing(txdb) && !missing(org)) {
       stopifnot(is(txdb, "TxDb"))
       stopifnot(is(org, "OrgDb"))
     }
-    if(!missing(interestedRegion)){
-      stopifnot(is(interestedRegion, 'GRanges'))
-    }
   }
 
-  # Detect clusters
-  clusters <- detect_clusters(g, cluster_method, ...)
+  # prepare the data
+  clusters <- anno_clusters(anno)
+  g <- anno_graph(anno)
+  peakRegion <- anno_event(anno, event)
+  fetureRegion <- anno_feature(anno, event)
+  evidence <- anno_evidence(anno, event)
+  peakbin <- anno_peakbin(anno, event)
+  featurebin <- anno_featurebin(anno, event)
+  if(evidence==''){
+    ## find evidence
+    evidence <- shortest_paths(
+      graph = g,
+      from = peakbin,
+      to   = featurebin,
+      mode = "all",
+      output = "epath"
+    )$epath[[1]]
+    evi_names <- as_edgelist(g)[evidence, , drop=FALSE]
+  }else{
+    # extract the cluster id
+    evi_names <- strsplit(evidence, ";|\\|")
+    evi_names <- gsub(pattern = "\\s+", replacement = "", evi_names[[1]])
+  }
+  if(length(evi_names)==0){
+    stop("No indirect evidence is available. Maybe they are connect directly.")
+  }
 
-  # extract the cluster id
-  evi_names <- unique(strsplit(evidence, ";|\\|"))
-  evi_names <- gsub(pattern = "\\s+", replacement = "", evi_names[[1]])
   cluster_id <- clusters$cluster_id[clusters$anchor_id %in% evi_names]
   if (!all(cluster_id == cluster_id[1])) {
     stop("Not all cluster id is same. Check the cluster_method and parameters.")
@@ -62,13 +76,31 @@ plotEvidence <- function(
   css <- clusters$anchor_id[clusters$cluster_id == cluster_id[1]]
   sg <- induced_subgraph(g, css)
   if (output == "trackPlot") {
-    vp <- plotTrack(as_edgelist(sg, names = TRUE), evi_names, txdb, org, interestedRegion)
+    vp <- plotTrack(as_edgelist(sg, names = TRUE), evi_names, txdb, org,
+                    peakRegion, fetureRegion)
     return(vp)
   }
+  ## add peakRegion and fetureRegion to graph
+  A <- as.character(peakRegion)
+  B <- as.character(fetureRegion)
+  sg <- add_vertices(sg, 2, name=c(A, B))
+  sg <- add_edges(sg, c(A, peakbin, B, featurebin))
   data <- toVisNetworkData(sg)
   data$nodes$title <- data$nodes$id
-  data$nodes$color <- ifelse(data$nodes$id %in% evi_names, "tomato", "lightgray")
-  data$nodes$size <- ifelse(data$nodes$id %in% evi_names, 20, 15)
+  data$nodes$label[data$nodes$id %in% A] <- 'peak'
+  data$nodes$label[data$nodes$id %in% B] <- 'target feature'
+
+  data$nodes$color <- ifelse(data$nodes$id %in% evi_names,
+                             "tomato",
+                             ifelse(data$nodes$id %in% A,
+                                    "darkgreen",
+                                    ifelse(data$nodes$id %in% B,
+                                           "brown",
+                                           "lightgray")))
+  data$nodes$size <- ifelse(data$nodes$id %in% evi_names,
+                            20,
+                            ifelse(data$nodes$id %in% c(A, B),
+                                   25, 15))
   graph <- visNetwork(data$nodes, data$edges)
   switch(output,
     "htmlWidget" = {
@@ -84,7 +116,7 @@ plotEvidence <- function(
 #' @importFrom S4Vectors queryHits
 #' @importFrom IRanges subsetByOverlaps
 #' @importFrom AnnotationDbi select
-plotTrack <- function(edges, evi_names, txdb, org, interestedRegion) {
+plotTrack <- function(edges, evi_names, txdb, org, peakRegion, fetureRegion) {
   evi_names <- matrix(evi_names, ncol = 2, byrow = TRUE)
   evi <- GInteractions(GRanges(evi_names[, 1]), GRanges(evi_names[, 2]))
   evi$score <- 2
@@ -116,8 +148,10 @@ plotTrack <- function(edges, evi_names, txdb, org, interestedRegion) {
     tl <- trackList(links = track)
   }
   vp <- viewTracks(tl, gr = range, autoOptimizeStyle = TRUE)
-  if(!missing(interestedRegion)){
-    addGuideLine(guideLine=c(start(interestedRegion), end(interestedRegion)),
-                 col='red', vp=vp)
+  if(!missing(peakRegion)){
+    addGuideLine(guideLine=c(start(peakRegion), end(peakRegion)),
+                 col='darkgreen', vp=vp)
+    addGuideLine(guideLine=c(start(fetureRegion), end(fetureRegion)),
+                 col='orange', vp=vp)
   }
 }

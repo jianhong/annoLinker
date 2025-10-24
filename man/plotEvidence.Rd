@@ -5,32 +5,21 @@
 \title{Plot interaction network for visualization}
 \usage{
 plotEvidence(
-  g,
-  evidence,
-  cluster_method = c("components", "louvain", "walktrap", "infomap"),
-  ...,
+  anno,
+  event,
   output = c("graph", "htmlWidget", "trackPlot"),
   txdb,
-  org,
-  interestedRegion
+  org
 )
 }
 \arguments{
-\item{g}{Interaction graph output by \link{annoLinker}}
+\item{anno}{An object of annoLinkerResult output by \link{annoLinker}}
 
-\item{evidence}{The evidence to highlighted}
-
-\item{cluster_method}{Character, clustering method: "components" (connected
-components), "louvain", "walktrap", or "infomap"}
-
-\item{...}{parameters for cluster. see \link[igraph]{cluster_louvain},
-\link[igraph]{cluster_walktrap}, and \link[igraph]{cluster_infomap}.}
+\item{event}{Number to indicate the event to be plot}
 
 \item{output}{Output of the plot.}
 
 \item{txdb, org}{The TxDb and OrgDb object used for annotation plot.}
-
-\item{interestedRegion}{The region of annotated to.}
 }
 \description{
 Plot interaction network for visualization
@@ -40,13 +29,10 @@ anno <- readRDS(system.file('extdata', 'sample_res.rds', package='annoLinker'))
 library(org.Dr.eg.db)
 library(TxDb.Drerio.UCSC.danRer10.refGene)
 n <- 1 #length(anno$annotated_peaks$evidences)
-plotEvidence(anno$interaction_graph,
- evidence=anno$annotated_peaks$evidences[n],
+plotEvidence(anno, event=n,
  output='htmlWidget')
-plotEvidence(anno$interaction_graph,
- evidence=anno$annotated_peaks$evidences[n],
+plotEvidence(anno, event=n,
  output='trackPlot',
  txdb=TxDb.Drerio.UCSC.danRer10.refGene,
- org=org.Dr.eg.db,
- interestedRegion=anno$annotated_peaks[n])
+ org=org.Dr.eg.db)
 }

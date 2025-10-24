@@ -13,6 +13,7 @@ annoLinker(
   cluster_method = c("components", "louvain", "walktrap", "infomap"),
   extend_anchors = 0,
   interactionDistanceRange = c(10000, 1e+07),
+  addEvidence = FALSE,
   parallel = FALSE,
   verbose = FALSE,
   ...
@@ -41,6 +42,8 @@ overlap detection (default: 0)}
 and maximal distance of interactions. This is used to make sure the annotations
 are not supper far away.}
 
+\item{addEvidence}{Logical, add evidence to the metadata or not.}
+
 \item{parallel}{Logical, use future_lapply to do parallel computing or not.}
 
 \item{verbose}{Logical, print the message or not}
@@ -49,8 +52,8 @@ are not supper far away.}
 \link[igraph]{cluster_walktrap}, and \link[igraph]{cluster_infomap}.}
 }
 \value{
-GRanges object with peaks annotated by gene clusters, or empty
-GRanges if no annotations found
+An \link{annoLinkerResult} object
+or NULL if no annotations found
 }
 \description{
 Fast annotation of genomic peaks using DNA interaction data by building

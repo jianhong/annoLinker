@@ -46,15 +46,12 @@ interactions <- rtracklayer::import(file.path(extPath, 'interaction.bedpe'))
 annoData <- genes(txdb)
 anno <- annoLinker(peaks, annoData, interactions, verbose=TRUE)
 n <- 1 #length(anno$annotated_peaks$evidences)
-plotEvidence(anno$interaction_graph,
-             evidence=anno$annotated_peaks$evidences[n],
+plotEvidence(anno, event=1,
              output='htmlWidget')
-plotEvidence(anno$interaction_graph,
-             evidence=anno$annotated_peaks$evidences[n],
+plotEvidence(anno, event=1,
              output='trackPlot',
              txdb=TxDb.Drerio.UCSC.danRer10.refGene,
-             org=org.Dr.eg.db,
-             interestedRegion=anno$annotated_peaks[n])
+             org=org.Dr.eg.db)
 ```
 
 ## SessionInfo
