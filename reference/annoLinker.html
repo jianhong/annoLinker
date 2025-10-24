@@ -19,7 +19,7 @@ subgraph are annotated with all genes in that subgraph."><!-- mathjax --><script
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">annoLinker</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.1</span>
       </span>
     </div>
 
@@ -66,6 +66,7 @@ subgraph are annotated with all genes in that subgraph.</p>
 <span>  cluster_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"components"</span>, <span class="st">"louvain"</span>, <span class="st">"walktrap"</span>, <span class="st">"infomap"</span><span class="op">)</span>,</span>
 <span>  extend_anchors <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  interactionDistanceRange <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10000</span>, <span class="fl">1e+07</span><span class="op">)</span>,</span>
+<span>  addEvidence <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  parallel <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -114,6 +115,10 @@ and maximal distance of interactions. This is used to make sure the annotations
 are not supper far away.</p></dd>
 
 
+<dt id="arg-addevidence">addEvidence<a class="anchor" aria-label="anchor" href="#arg-addevidence"></a></dt>
+<dd><p>Logical, add evidence to the metadata or not.</p></dd>
+
+
 <dt id="arg-parallel">parallel<a class="anchor" aria-label="anchor" href="#arg-parallel"></a></dt>
 <dd><p>Logical, use future_lapply to do parallel computing or not.</p></dd>
 
@@ -129,8 +134,8 @@ are not supper far away.</p></dd>
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>GRanges object with peaks annotated by gene clusters, or empty
-GRanges if no annotations found</p>
+    <p>An <a href="annoLinkerResult-class.html">annoLinkerResult</a> object
+or NULL if no annotations found</p>
     </div>
 
     <div id="ref-examples">
@@ -149,6 +154,9 @@ GRanges if no annotations found</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     setequal, union</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Attaching package: 'BiocGenerics'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> The following object is masked from 'package:annoLinker':</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     as.data.frame</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> The following objects are masked from 'package:stats':</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     IQR, mad, sd, var, xtabs</span>
@@ -190,14 +198,12 @@ GRanges if no annotations found</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   Use 'single.strand.genes.only=FALSE' to get all the genes in a GRangesList</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   object, or use suppressMessages() to suppress this message.</span>
 <span class="r-in"><span><span class="va">anno</span> <span class="op">&lt;-</span> <span class="fu">annoLinker</span><span class="op">(</span><span class="va">peaks</span>, <span class="va">annoData</span>, <span class="va">interactions</span>, verbose<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Step 1/5: Building interaction network graph...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Step 1/4: Building interaction network graph...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Graph has 3753 nodes and 2500 edges in 1264 clusters, on average 2.969146 nodes in each cluster</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Step 2/5: Finding interaction anchors overlapping genes and peaks...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Step 3/5: Finding genes and peaks in the same cluster...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Step 4/5: Finding evidence of the annotation...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Please do not forget to run future::plan(future::sequential) to release the resources</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Step 5/5: Annotating peaks with gene clusters...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Annotated 1797 peaks with gene clusters</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Step 2/4: Finding interaction anchors overlapping genes and peaks...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Step 3/4: Finding genes and peaks in the same cluster...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Step 4/4: Annotating peaks with gene clusters...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Annotated 2865 peaks with gene clusters</span>
 </code></pre></div>
     </div>
   </div>
