@@ -8,6 +8,8 @@ plotEvidence(
   anno,
   event,
   output = c("graph", "htmlWidget", "trackPlot"),
+  colors = c(peak = "darkgreen", feature = "brown", node = "tomato", background =
+    "lightgray"),
   txdb,
   org
 )
@@ -18,6 +20,8 @@ plotEvidence(
 \item{event}{Number to indicate the event to be plot}
 
 \item{output}{Output of the plot.}
+
+\item{colors}{Colors settting for the plot.}
 
 \item{txdb, org}{The TxDb and OrgDb object used for annotation plot.}
 }
@@ -32,7 +36,5 @@ n <- 1 #length(anno$annotated_peaks$evidences)
 plotEvidence(anno, event=n,
  output='htmlWidget')
 plotEvidence(anno, event=n,
- output='trackPlot',
- txdb=TxDb.Drerio.UCSC.danRer10.refGene,
- org=org.Dr.eg.db)
+ output='trackPlot')
 }

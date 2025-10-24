@@ -138,7 +138,7 @@ setGeneric('anno_feature', function(x, i) standardGeneric('anno_feature'))
 setMethod("anno_feature", signature(x="annoLinkerResult"), function(x, i){
   peaks <- x@annotated_peaks
   if(length(peaks)){
-    GRanges(peaks$feature_name[i],
+    GRanges(as.character(seqnames(peaks[i])),
             IRanges(peaks$feature_start[i],
                     peaks$feature_end[i]),
             strand=peaks$feature_strand[i])

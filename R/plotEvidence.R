@@ -3,6 +3,7 @@
 #' @param anno An object of annoLinkerResult output by \link{annoLinker}
 #' @param event Number to indicate the event to be plot
 #' @param output Output of the plot.
+#' @param colors Colors settting for the plot.
 #' @param txdb,org The TxDb and OrgDb object used for annotation plot.
 #' @export
 #' @importFrom visNetwork toVisNetworkData visOptions visNetwork
@@ -15,12 +16,12 @@
 #' plotEvidence(anno, event=n,
 #'  output='htmlWidget')
 #' plotEvidence(anno, event=n,
-#'  output='trackPlot',
-#'  txdb=TxDb.Drerio.UCSC.danRer10.refGene,
-#'  org=org.Dr.eg.db)
+#'  output='trackPlot')
 plotEvidence <- function(
     anno, event,
     output = c("graph", "htmlWidget", "trackPlot"),
+    colors = c(peak='darkgreen', feature='brown',
+               node='tomato', background='lightgray'),
     txdb, org
 ) {
   stopifnot(is(anno, 'annoLinkerResult'))
@@ -32,6 +33,7 @@ plotEvidence <- function(
   if(event<0){
     stop("event number could not smaller than 1")
   }
+  stopifnot(all(c('peak', 'feature', 'node', 'background') %in% names(colors)))
   event <- round(event)
   output <- match.arg(output)
   if (output == "trackPlot") {
@@ -77,7 +79,7 @@ plotEvidence <- function(
   sg <- induced_subgraph(g, css)
   if (output == "trackPlot") {
     vp <- plotTrack(as_edgelist(sg, names = TRUE), evi_names, txdb, org,
-                    peakRegion, fetureRegion)
+                    peakRegion, fetureRegion, colors)
     return(vp)
   }
   ## add peakRegion and fetureRegion to graph
@@ -88,15 +90,15 @@ plotEvidence <- function(
   data <- toVisNetworkData(sg)
   data$nodes$title <- data$nodes$id
   data$nodes$label[data$nodes$id %in% A] <- 'peak'
-  data$nodes$label[data$nodes$id %in% B] <- 'target feature'
+  data$nodes$label[data$nodes$id %in% B] <- 'feature'
 
   data$nodes$color <- ifelse(data$nodes$id %in% evi_names,
-                             "tomato",
+                             colors['node'],
                              ifelse(data$nodes$id %in% A,
-                                    "darkgreen",
+                                    colors['peak'],
                                     ifelse(data$nodes$id %in% B,
-                                           "brown",
-                                           "lightgray")))
+                                           colors['feature'],
+                                           colors['background'])))
   data$nodes$size <- ifelse(data$nodes$id %in% evi_names,
                             20,
                             ifelse(data$nodes$id %in% c(A, B),
@@ -110,13 +112,13 @@ plotEvidence <- function(
   )
 }
 
-#' @importFrom trackViewer geneTrack trackList viewTracks setTrackStyleParam gi2track addGuideLine
+#' @importFrom trackViewer geneTrack trackList viewTracks setTrackStyleParam gi2track addGuideLine setTrackYaxisParam addArrowMark
 #' @importFrom InteractionSet GInteractions regions
 #' @importFrom GenomicRanges GRanges findOverlaps
 #' @importFrom S4Vectors queryHits
 #' @importFrom IRanges subsetByOverlaps
 #' @importFrom AnnotationDbi select
-plotTrack <- function(edges, evi_names, txdb, org, peakRegion, fetureRegion) {
+plotTrack <- function(edges, evi_names, txdb, org, peakRegion, fetureRegion, colors) {
   evi_names <- matrix(evi_names, ncol = 2, byrow = TRUE)
   evi <- GInteractions(GRanges(evi_names[, 1]), GRanges(evi_names[, 2]))
   evi$score <- 2
@@ -128,8 +130,9 @@ plotTrack <- function(edges, evi_names, txdb, org, peakRegion, fetureRegion) {
   setTrackStyleParam(track, "tracktype", "link")
   setTrackStyleParam(
     track, "color",
-    c("white", "gray", "red")
+    c("white", colors['background'], colors['node'])
   )
+  setTrackYaxisParam(track, 'draw', FALSE)
   range <- range(regions(gi))
   if (!missing(txdb) && !missing(org)) {
     genes <- suppressMessages(genes(txdb))
@@ -141,8 +144,8 @@ plotTrack <- function(edges, evi_names, txdb, org, peakRegion, fetureRegion) {
       asList = FALSE
     )
     highlight <- queryHits(findOverlaps(anno$dat, regions(evi)))
-    anno$dat$color <- "black"
-    anno$dat$color[highlight] <- "red"
+    anno$dat$color <- colors['background']
+    anno$dat$color[highlight] <- colors['node']
     tl <- trackList(genes = anno, links = track)
   } else {
     tl <- trackList(links = track)
@@ -150,8 +153,15 @@ plotTrack <- function(edges, evi_names, txdb, org, peakRegion, fetureRegion) {
   vp <- viewTracks(tl, gr = range, autoOptimizeStyle = TRUE)
   if(!missing(peakRegion)){
     addGuideLine(guideLine=c(start(peakRegion), end(peakRegion)),
-                 col='darkgreen', vp=vp)
+                 col=colors['peak'], vp=vp)
     addGuideLine(guideLine=c(start(fetureRegion), end(fetureRegion)),
-                 col='orange', vp=vp)
+                 col=colors['feature'], vp=vp)
+    addArrowMark(pos = list(x=(start(peakRegion) + end(peakRegion))/2,
+                            y=length(tl)),
+                 label = 'peak', col = colors['peak'], vp = vp)
+    addArrowMark(pos = list(x=(start(fetureRegion) + end(fetureRegion))/2,
+                            y=length(tl)),
+                 label = 'feature', col = colors['feature'], vp = vp)
   }
+  return(invisible())
 }
