@@ -61,6 +61,7 @@ plotEvidence <- function(
       output = "epath"
     )$epath[[1]]
     evi_names <- as_edgelist(g)[evidence, , drop=FALSE]
+    evi_names <- as.character(t(evi_names))
   }else{
     # extract the cluster id
     evi_names <- strsplit(evidence, ";|\\|")
