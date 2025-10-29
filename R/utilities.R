@@ -127,12 +127,14 @@ get_annotation_regions <- function(annoData, bindingType, bindingRegion) {
       trim(out)
     },
     startSite = {
+      ## to suppress the warning of different seqinfos.
       suppressWarnings(promoters(annoData,
         upstream = abs(bindingRegion[1]),
         downstream = bindingRegion[2]
       ))
     },
     endSite = {
+      ## to suppress the warning of different seqinfos.
       suppressWarnings(terminators(annoData,
         upstream = abs(bindingRegion[1]),
         downstream = bindingRegion[2]

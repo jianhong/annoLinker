@@ -3,7 +3,7 @@
 #' @param anno An object of annoLinkerResult output by \link{annoLinker}
 #' @param event Number to indicate the event to be plot
 #' @param output Output of the plot.
-#' @param colors Colors settting for the plot.
+#' @param colors Colors setting for the plot.
 #' @param txdb,org The TxDb and OrgDb object used for annotation plot.
 #' @export
 #' @importFrom visNetwork toVisNetworkData visOptions visNetwork
@@ -136,10 +136,12 @@ plotTrack <- function(edges, evi_names, txdb, org, peakRegion, fetureRegion, col
   setTrackYaxisParam(track, 'draw', FALSE)
   range <- range(regions(gi))
   if (!missing(txdb) && !missing(org)) {
+    ## use suppressMessage to avoid the genes in different strand message
     genes <- suppressMessages(genes(txdb))
     genes <- subsetByOverlaps(genes, range)
+    ## use suppressMessage to avoid the select 1 in 1 message
     symbols <- suppressMessages(select(org, names(genes), "SYMBOL", "ENTREZID"))
-    symbols <- symbols[!is.na(symbols$SYMBOL), ]
+    symbols <- symbols[!is.na(symbols$SYMBOL), , drop=FALSE]
     anno <- geneTrack(symbols$ENTREZID, txdb, symbols$SYMBOL,
       type = "gene",
       asList = FALSE
