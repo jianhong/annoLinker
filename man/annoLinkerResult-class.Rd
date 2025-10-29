@@ -81,6 +81,9 @@ anno_featurebin(x, i)
 
 \item{i}{Numeric, index value.}
 }
+\value{
+The object of 'annoLinkerResult', 'GRanges', 'igraph' or 'data.frame'
+}
 \description{
 An object of class \code{"annoLinkerResult"} represent the annotated peaks,
 which is a GRanges object with peaks annotated by gene clusters, and

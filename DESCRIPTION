@@ -3,8 +3,10 @@ Type: Package
 Title: Annotating genomic regions through chromatin interaction links
 Version: 0.99.0
 Authors@R:
-    person(given="Jianhong", family="Ou", email="jou@morgridge.org",
-        role=c("aut", "cre"), comment=c(ORCID="0000-0002-8652-2488"))
+    c(person(given="Jianhong", family="Ou", email="jou@morgridge.org", 
+        role=c("aut", "cre"), comment=c(ORCID="0000-0002-8652-2488")),
+        person(given='Kenneth', family='Poss', email='kposs@morgridge.org',
+        role=c('aut', 'fnd')))
 Description: Fast annotation of genomic peaks using DNA interaction data by constructing interaction networks with igraph, where peaks overlapping any node in a connected subgraph are annotated with all genes in that subgraph.
     The annotation evidence could be visualized as either a network graph or a genomic track integrated with gene annotation information.
 LazyData: false
@@ -13,7 +15,7 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 VignetteBuilder: knitr
-biocViews: Visualization
+biocViews: Network, Annotation, Visualization
 Depends:
     R (>= 4.5.0)
 Imports:

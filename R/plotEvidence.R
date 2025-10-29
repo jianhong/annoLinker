@@ -5,6 +5,7 @@
 #' @param output Output of the plot.
 #' @param colors Colors setting for the plot.
 #' @param txdb,org The TxDb and OrgDb object used for annotation plot.
+#' @return htmlWidget or plots.
 #' @export
 #' @importFrom visNetwork toVisNetworkData visOptions visNetwork
 #' @importFrom igraph induced_subgraph as_edgelist shortest_paths add_vertices add_edges

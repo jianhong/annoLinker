@@ -25,6 +25,9 @@ plotEvidence(
 
 \item{txdb, org}{The TxDb and OrgDb object used for annotation plot.}
 }
+\value{
+htmlWidget or plots.
+}
 \description{
 Plot interaction network for visualization
 }

@@ -10,6 +10,7 @@
 #' @section Objects from the Class: Objects can be created by calls of the form
 #' \code{new("annoLinkerResult", annotated_peaks, graph, clusters)}.
 #' @keywords classes
+#' @return The object of 'annoLinkerResult', 'GRanges', 'igraph' or 'data.frame'
 #' @export
 #' @examples
 #' library(igraph)
