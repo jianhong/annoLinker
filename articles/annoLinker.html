@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">annoLinker</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.3</span>
       </span>
     </div>
 
@@ -72,7 +72,7 @@ through chromatin interaction links</h1>
                         <h4 data-toc-skip class="author">Jianhong
 Ou</h4>
             
-            <h4 data-toc-skip class="date">24 October 2025</h4>
+            <h4 data-toc-skip class="date">29 October 2025</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/jianhong/annoLinker/blob/main/vignettes/annoLinker.Rmd" class="external-link"><code>vignettes/annoLinker.Rmd</code></a></small>
       <div class="hidden name"><code>annoLinker.Rmd</code></div>
@@ -87,9 +87,62 @@ Ou</h4>
     </div>
     
 <div class="section level2">
-<h2 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
+<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+</h2>
+<p>Functional annotation of genomic regions is a key step in
+understanding regulatory mechanisms underlying gene expression and
+phenotype variation. Traditional annotation methods typically rely on
+the linear proximity of genomic features, such as linking peaks to the
+nearest gene, which can overlook the complex three-dimensional
+organization of the genome. Recent advances in chromatin conformation
+capture technologies (e.g., Hi-C, ChIA-PET, PLAC-seq, HiCAR) have
+revealed that regulatory elements often interact with distant genomic
+loci through chromatin loops, bringing enhancers, promoters, and other
+elements into physical contact.</p>
+<p><code>annoLinker</code> is designed to bridge this gap by annotating
+genomic regions through chromatin interaction links. Rather than relying
+solely on linear genomic distance, <code>annoLinker</code> integrates
+chromatin contact information to establish biologically meaningful
+connections between regulatory regions and their potential target genes.
+This approach complements traditional annotation methods by enabling the
+functional assignment of distal elements such as enhancers and
+silencers.</p>
+<p>The package provides a streamlined workflow to link user-defined
+genomic regions with genomic interactions (loops), annotate the
+associated genes, and visualize the resulting interaction networks. By
+leveraging interaction data, <code>annoLinker</code> enables users to
+explore functional relationships that are invisible in linear genome
+coordinates and to generate more comprehensive biological
+interpretations from genomic assays such as ATAC-seq, ChIP-seq, or
+Methyl-seq.</p>
+</div>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st"><a href="https://bioconductor.github.io/BiocManager/" class="external-link">"BiocManager"</a></span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"BiocManager"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://bioconductor.github.io/BiocManager/reference/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"jianhong/annoLinker"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
+</h2>
+<p>The input to <code>annoLinker</code> consists of three components:
+the genomic regions of interest to be annotated, the annotation data,
+and the chromatin interaction information. Both the peak list and
+annotation data should be provided as <code>GRanges</code> objects,
+while genomic interactions can be supplied as either
+<code>GInteractions</code> or <code>Pairs</code> objects.</p>
+<p>By default, <code>annoLinker</code> annotates peaks that fall within
+the <em>promoter region</em>, defined as 5 kb upstream to 5 kb
+downstream of the annotated features. Users can optionally modify this
+definition to annotate regions within the <em>gene body</em> or
+<em>downstream</em> segments instead.</p>
+<p>The output is returned as an <code>annoLinkerResult</code> object,
+which can be easily converted into a <code>GRanges</code> or
+<code>data.frame</code> for downstream analysis and visualization.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/jianhong/annoLinker" class="external-link">annoLinker</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">rtracklayer</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">TxDb.Drerio.UCSC.danRer10.refGene</span><span class="op">)</span></span>
@@ -104,16 +157,78 @@ Ou</h4>
 <span><span class="co">## load annotation data</span></span>
 <span><span class="va">annoData</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicFeatures/man/transcripts.html" class="external-link">genes</a></span><span class="op">(</span><span class="va">txdb</span><span class="op">)</span></span>
 <span><span class="va">anno</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/annoLinker.html">annoLinker</a></span><span class="op">(</span><span class="va">peaks</span>, <span class="va">annoData</span>, <span class="va">interactions</span>, verbose<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="co">#length(anno$annotated_peaks$evidences)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">anno</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] "annoLinkerResult"</span></span>
+<span><span class="co">## attr(,"package")</span></span>
+<span><span class="co">## [1] "annoLinker"</span></span></code></pre>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">anno</span>, n<span class="op">=</span><span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## GRanges object with 2 ranges and 7 metadata columns:</span></span>
+<span><span class="co">##       seqnames            ranges strand | feature_name feature_start</span></span>
+<span><span class="co">##          &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; |  &lt;character&gt;     &lt;integer&gt;</span></span>
+<span><span class="co">##   [1]     chr1 45062825-45063844      * |    100151507      44660095</span></span>
+<span><span class="co">##   [2]     chr1 45062825-45063844      * |    100038798      45052323</span></span>
+<span><span class="co">##       feature_end feature_strand     gene_id               peak_bin</span></span>
+<span><span class="co">##         &lt;integer&gt;          &lt;Rle&gt; &lt;character&gt;            &lt;character&gt;</span></span>
+<span><span class="co">##   [1]    44674627              +   100151507 chr1:45060001-45070000</span></span>
+<span><span class="co">##   [2]    45060215              -   100038798 chr1:45060001-45070000</span></span>
+<span><span class="co">##                  feature_bin</span></span>
+<span><span class="co">##                  &lt;character&gt;</span></span>
+<span><span class="co">##   [1] chr1:44660001-44670000</span></span>
+<span><span class="co">##   [2] chr1:45050001-45060000</span></span>
+<span><span class="co">##   -------</span></span>
+<span><span class="co">##   seqinfo: 2 sequences from an unspecified genome; no seqlengths</span></span></code></pre>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/annoLinkerResult-class.html">anno_peaks</a></span><span class="op">(</span><span class="va">anno</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<pre><code><span><span class="co">## GRanges object with 2 ranges and 7 metadata columns:</span></span>
+<span><span class="co">##       seqnames            ranges strand | feature_name feature_start</span></span>
+<span><span class="co">##          &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; |  &lt;character&gt;     &lt;integer&gt;</span></span>
+<span><span class="co">##   [1]     chr1 45062825-45063844      * |    100151507      44660095</span></span>
+<span><span class="co">##   [2]     chr1 45062825-45063844      * |    100038798      45052323</span></span>
+<span><span class="co">##       feature_end feature_strand     gene_id               peak_bin</span></span>
+<span><span class="co">##         &lt;integer&gt;          &lt;Rle&gt; &lt;character&gt;            &lt;character&gt;</span></span>
+<span><span class="co">##   [1]    44674627              +   100151507 chr1:45060001-45070000</span></span>
+<span><span class="co">##   [2]    45060215              -   100038798 chr1:45060001-45070000</span></span>
+<span><span class="co">##                  feature_bin</span></span>
+<span><span class="co">##                  &lt;character&gt;</span></span>
+<span><span class="co">##   [1] chr1:44660001-44670000</span></span>
+<span><span class="co">##   [2] chr1:45050001-45060000</span></span>
+<span><span class="co">##   -------</span></span>
+<span><span class="co">##   seqinfo: 2 sequences from an unspecified genome; no seqlengths</span></span></code></pre>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/methods/as.html" class="external-link">as</a></span><span class="op">(</span><span class="va">anno</span>, <span class="st">'GRanges'</span><span class="op">)</span>, n<span class="op">=</span><span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## GRanges object with 2 ranges and 7 metadata columns:</span></span>
+<span><span class="co">##       seqnames            ranges strand | feature_name feature_start</span></span>
+<span><span class="co">##          &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; |  &lt;character&gt;     &lt;integer&gt;</span></span>
+<span><span class="co">##   [1]     chr1 45062825-45063844      * |    100151507      44660095</span></span>
+<span><span class="co">##   [2]     chr1 45062825-45063844      * |    100038798      45052323</span></span>
+<span><span class="co">##       feature_end feature_strand     gene_id               peak_bin</span></span>
+<span><span class="co">##         &lt;integer&gt;          &lt;Rle&gt; &lt;character&gt;            &lt;character&gt;</span></span>
+<span><span class="co">##   [1]    44674627              +   100151507 chr1:45060001-45070000</span></span>
+<span><span class="co">##   [2]    45060215              -   100038798 chr1:45060001-45070000</span></span>
+<span><span class="co">##                  feature_bin</span></span>
+<span><span class="co">##                  &lt;character&gt;</span></span>
+<span><span class="co">##   [1] chr1:44660001-44670000</span></span>
+<span><span class="co">##   [2] chr1:45050001-45060000</span></span>
+<span><span class="co">##   -------</span></span>
+<span><span class="co">##   seqinfo: 2 sequences from an unspecified genome; no seqlengths</span></span></code></pre>
+<p>The <code><a href="../reference/plotEvidence.html">plotEvidence()</a></code> function allows users to visualize
+the annotation evidence chain, illustrating how genomic regions are
+linked through chromatin interactions. Users can plot the annotation
+evidence as either a <em>network graph</em> or a <em>genomic track</em>
+integrated with gene annotation information.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## plot the evidence for the first annotation</span></span>
+<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
 <span><span class="fu"><a href="../reference/plotEvidence.html">plotEvidence</a></span><span class="op">(</span><span class="va">anno</span>, event<span class="op">=</span><span class="fl">1</span>,</span>
 <span>             output<span class="op">=</span><span class="st">'htmlWidget'</span><span class="op">)</span></span></code></pre></div>
 <div class="visNetwork html-widget html-fill-item" id="htmlwidget-ac96cb3ee4656e2e9ec3" style="width:700px;height:432.632880098888px;"></div>
-<script type="application/json" data-for="htmlwidget-ac96cb3ee4656e2e9ec3">{"x":{"nodes":{"id":["chr1:45130001-45140000","chr1:45050001-45060000","chr1:44900001-44910000","chr1:45060001-45070000","chr1:45040001-45050000","chr1:44550001-44560000","chr1:45160001-45170000","chr1:44280001-44290000","chr1:43450001-43460000","chr1:44660001-44670000","chr1:46800001-46810000","chr1:46270001-46280000","chr1:45290001-45300000","chr1:45062825-45063844","chr1:44660095-44674627:+"],"label":["chr1:45130001-45140000","chr1:45050001-45060000","chr1:44900001-44910000","chr1:45060001-45070000","chr1:45040001-45050000","chr1:44550001-44560000","chr1:45160001-45170000","chr1:44280001-44290000","chr1:43450001-43460000","chr1:44660001-44670000","chr1:46800001-46810000","chr1:46270001-46280000","chr1:45290001-45300000","peak","feature"],"title":["chr1:45130001-45140000","chr1:45050001-45060000","chr1:44900001-44910000","chr1:45060001-45070000","chr1:45040001-45050000","chr1:44550001-44560000","chr1:45160001-45170000","chr1:44280001-44290000","chr1:43450001-43460000","chr1:44660001-44670000","chr1:46800001-46810000","chr1:46270001-46280000","chr1:45290001-45300000","chr1:45062825-45063844","chr1:44660095-44674627:+"],"color":["lightgray","lightgray","lightgray","tomato","tomato","lightgray","lightgray","lightgray","lightgray","tomato","lightgray","tomato","lightgray","darkgreen","brown"],"size":[15,15,15,20,20,15,15,15,15,20,15,20,15,25,25]},"edges":{"from":["chr1:45130001-45140000","chr1:45130001-45140000","chr1:44900001-44910000","chr1:44900001-44910000","chr1:44900001-44910000","chr1:45040001-45050000","chr1:45130001-45140000","chr1:45160001-45170000","chr1:45130001-45140000","chr1:45060001-45070000","chr1:45040001-45050000","chr1:45040001-45050000","chr1:45060001-45070000","chr1:44660001-44670000"],"to":["chr1:45050001-45060000","chr1:44550001-44560000","chr1:45160001-45170000","chr1:44280001-44290000","chr1:43450001-43460000","chr1:44660001-44670000","chr1:46800001-46810000","chr1:46800001-46810000","chr1:46270001-46280000","chr1:46270001-46280000","chr1:46270001-46280000","chr1:45290001-45300000","chr1:45062825-45063844","chr1:44660095-44674627:+"]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot"},"manipulation":{"enabled":false}},"groups":null,"width":null,"height":null,"idselection":{"enabled":true,"style":"width: 150px; height: 26px","useLabels":true,"main":"Select by id"},"byselection":{"enabled":false,"style":"width: 150px; height: 26px","multiple":false,"hideColor":"rgba(200,200,200,0.5)","highlight":false},"main":null,"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)","highlight":{"enabled":true,"hoverNearest":false,"degree":1,"algorithm":"all","hideColor":"rgba(200,200,200,0.5)","labelOnly":true},"collapse":{"enabled":false,"fit":false,"resetHighlight":true,"clusterOptions":null,"keepCoord":true,"labelSuffix":"(cluster)"}},"evals":[],"jsHooks":[]}</script><div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<script type="application/json" data-for="htmlwidget-ac96cb3ee4656e2e9ec3">{"x":{"nodes":{"id":["chr1:45130001-45140000","chr1:45050001-45060000","chr1:44900001-44910000","chr1:45060001-45070000","chr1:45040001-45050000","chr1:44550001-44560000","chr1:45160001-45170000","chr1:44280001-44290000","chr1:43450001-43460000","chr1:44660001-44670000","chr1:46800001-46810000","chr1:46270001-46280000","chr1:45290001-45300000","chr1:45062825-45063844","chr1:44660095-44674627:+"],"label":["chr1:45130001-45140000","chr1:45050001-45060000","chr1:44900001-44910000","chr1:45060001-45070000","chr1:45040001-45050000","chr1:44550001-44560000","chr1:45160001-45170000","chr1:44280001-44290000","chr1:43450001-43460000","chr1:44660001-44670000","chr1:46800001-46810000","chr1:46270001-46280000","chr1:45290001-45300000","peak","feature"],"title":["chr1:45130001-45140000","chr1:45050001-45060000","chr1:44900001-44910000","chr1:45060001-45070000","chr1:45040001-45050000","chr1:44550001-44560000","chr1:45160001-45170000","chr1:44280001-44290000","chr1:43450001-43460000","chr1:44660001-44670000","chr1:46800001-46810000","chr1:46270001-46280000","chr1:45290001-45300000","chr1:45062825-45063844","chr1:44660095-44674627:+"],"color":["lightgray","lightgray","lightgray","tomato","tomato","lightgray","lightgray","lightgray","lightgray","tomato","lightgray","tomato","lightgray","darkgreen","brown"],"size":[15,15,15,20,20,15,15,15,15,20,15,20,15,25,25]},"edges":{"from":["chr1:45130001-45140000","chr1:45130001-45140000","chr1:44900001-44910000","chr1:44900001-44910000","chr1:44900001-44910000","chr1:45040001-45050000","chr1:45130001-45140000","chr1:45160001-45170000","chr1:45130001-45140000","chr1:45060001-45070000","chr1:45040001-45050000","chr1:45040001-45050000","chr1:45060001-45070000","chr1:44660001-44670000"],"to":["chr1:45050001-45060000","chr1:44550001-44560000","chr1:45160001-45170000","chr1:44280001-44290000","chr1:43450001-43460000","chr1:44660001-44670000","chr1:46800001-46810000","chr1:46800001-46810000","chr1:46270001-46280000","chr1:46270001-46280000","chr1:46270001-46280000","chr1:45290001-45300000","chr1:45062825-45063844","chr1:44660095-44674627:+"]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot"},"manipulation":{"enabled":false}},"groups":null,"width":null,"height":null,"idselection":{"enabled":true,"style":"width: 150px; height: 26px","useLabels":true,"main":"Select by id"},"byselection":{"enabled":false,"style":"width: 150px; height: 26px","multiple":false,"hideColor":"rgba(200,200,200,0.5)","highlight":false},"main":null,"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)","highlight":{"enabled":true,"hoverNearest":false,"degree":1,"algorithm":"all","hideColor":"rgba(200,200,200,0.5)","labelOnly":true},"collapse":{"enabled":false,"fit":false,"resetHighlight":true,"clusterOptions":null,"keepCoord":true,"labelSuffix":"(cluster)"}},"evals":[],"jsHooks":[]}</script><div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotEvidence.html">plotEvidence</a></span><span class="op">(</span><span class="va">anno</span>, event<span class="op">=</span><span class="fl">1</span>,</span>
 <span>             output<span class="op">=</span><span class="st">'trackPlot'</span>,</span>
 <span>             txdb<span class="op">=</span><span class="va">TxDb.Drerio.UCSC.danRer10.refGene</span>,</span>
 <span>             org<span class="op">=</span><span class="va">org.Dr.eg.db</span><span class="op">)</span></span></code></pre></div>
-<p><img src="annoLinker_files/figure-html/quickstart-2.png" width="700"></p>
+<p><img src="annoLinker_files/figure-html/datavisualization-2.png" width="700"></p>
 <pre><code><span><span class="co">## NULL</span></span></code></pre>
 </div>
 <div class="section level2">
@@ -145,17 +260,17 @@ Ou</h4>
 <span><span class="co">## other attached packages:</span></span>
 <span><span class="co">##  [1] org.Dr.eg.db_3.22.0                    </span></span>
 <span><span class="co">##  [2] TxDb.Drerio.UCSC.danRer10.refGene_3.4.6</span></span>
-<span><span class="co">##  [3] GenomicFeatures_1.61.6                 </span></span>
+<span><span class="co">##  [3] GenomicFeatures_1.61.8                 </span></span>
 <span><span class="co">##  [4] AnnotationDbi_1.71.2                   </span></span>
 <span><span class="co">##  [5] Biobase_2.69.1                         </span></span>
 <span><span class="co">##  [6] rtracklayer_1.69.1                     </span></span>
-<span><span class="co">##  [7] GenomicRanges_1.61.5                   </span></span>
-<span><span class="co">##  [8] Seqinfo_0.99.2                         </span></span>
-<span><span class="co">##  [9] IRanges_2.43.5                         </span></span>
-<span><span class="co">## [10] S4Vectors_0.47.4                       </span></span>
+<span><span class="co">##  [7] GenomicRanges_1.61.8                   </span></span>
+<span><span class="co">##  [8] Seqinfo_0.99.4                         </span></span>
+<span><span class="co">##  [9] IRanges_2.43.8                         </span></span>
+<span><span class="co">## [10] S4Vectors_0.47.6                       </span></span>
 <span><span class="co">## [11] BiocGenerics_0.55.4                    </span></span>
 <span><span class="co">## [12] generics_0.1.4                         </span></span>
-<span><span class="co">## [13] annoLinker_0.1.1                       </span></span>
+<span><span class="co">## [13] annoLinker_0.1.3                       </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## loaded via a namespace (and not attached):</span></span>
 <span><span class="co">##   [1] strawr_0.0.92               RColorBrewer_1.1-3         </span></span>
@@ -166,15 +281,15 @@ Ou</h4>
 <span><span class="co">##  [11] vctrs_0.6.5                 memoise_2.0.1              </span></span>
 <span><span class="co">##  [13] Rsamtools_2.25.3            RCurl_1.98-1.17            </span></span>
 <span><span class="co">##  [15] base64enc_0.1-3             htmltools_0.5.8.1          </span></span>
-<span><span class="co">##  [17] S4Arrays_1.9.1              progress_1.2.3             </span></span>
+<span><span class="co">##  [17] S4Arrays_1.9.2              progress_1.2.3             </span></span>
 <span><span class="co">##  [19] curl_7.0.0                  Rhdf5lib_1.31.1            </span></span>
 <span><span class="co">##  [21] rhdf5_2.53.6                SparseArray_1.9.1          </span></span>
 <span><span class="co">##  [23] Formula_1.2-5               sass_0.4.10                </span></span>
 <span><span class="co">##  [25] parallelly_1.45.1           bslib_0.9.0                </span></span>
 <span><span class="co">##  [27] htmlwidgets_1.6.4           desc_1.4.3                 </span></span>
 <span><span class="co">##  [29] Gviz_1.53.1                 httr2_1.2.1                </span></span>
-<span><span class="co">##  [31] cachem_1.1.0                GenomicAlignments_1.45.4   </span></span>
-<span><span class="co">##  [33] igraph_2.2.0                lifecycle_1.0.4            </span></span>
+<span><span class="co">##  [31] cachem_1.1.0                GenomicAlignments_1.45.5   </span></span>
+<span><span class="co">##  [33] igraph_2.2.1                lifecycle_1.0.4            </span></span>
 <span><span class="co">##  [35] pkgconfig_2.0.3             Matrix_1.7-4               </span></span>
 <span><span class="co">##  [37] R6_2.6.1                    fastmap_1.2.0              </span></span>
 <span><span class="co">##  [39] MatrixGenerics_1.21.0       future_1.67.0              </span></span>
@@ -187,16 +302,16 @@ Ou</h4>
 <span><span class="co">##  [53] S7_0.2.0                    backports_1.5.0            </span></span>
 <span><span class="co">##  [55] BiocParallel_1.43.4         DBI_1.2.3                  </span></span>
 <span><span class="co">##  [57] biomaRt_2.65.16             rappdirs_0.3.3             </span></span>
-<span><span class="co">##  [59] DelayedArray_0.35.3         rjson_0.2.23               </span></span>
+<span><span class="co">##  [59] DelayedArray_0.35.4         rjson_0.2.23               </span></span>
 <span><span class="co">##  [61] tools_4.5.1                 foreign_0.8-90             </span></span>
 <span><span class="co">##  [63] future.apply_1.20.0         nnet_7.3-20                </span></span>
 <span><span class="co">##  [65] glue_1.8.0                  restfulr_0.0.16            </span></span>
 <span><span class="co">##  [67] InteractionSet_1.37.1       rhdf5filters_1.21.4        </span></span>
 <span><span class="co">##  [69] grid_4.5.1                  checkmate_2.3.3            </span></span>
 <span><span class="co">##  [71] cluster_2.1.8.1             gtable_0.3.6               </span></span>
-<span><span class="co">##  [73] BSgenome_1.77.2             trackViewer_1.45.2         </span></span>
+<span><span class="co">##  [73] BSgenome_1.77.3             trackViewer_1.45.3         </span></span>
 <span><span class="co">##  [75] ensembldb_2.33.2            data.table_1.17.8          </span></span>
-<span><span class="co">##  [77] hms_1.1.4                   XVector_0.49.1             </span></span>
+<span><span class="co">##  [77] hms_1.1.4                   XVector_0.49.3             </span></span>
 <span><span class="co">##  [79] pillar_1.11.1               stringr_1.5.2              </span></span>
 <span><span class="co">##  [81] dplyr_1.1.4                 BiocFileCache_2.99.6       </span></span>
 <span><span class="co">##  [83] lattice_0.22-7              deldir_2.0-4               </span></span>
@@ -206,25 +321,25 @@ Ou</h4>
 <span><span class="co">##  [91] ProtGenerics_1.41.0         SummarizedExperiment_1.39.2</span></span>
 <span><span class="co">##  [93] xfun_0.53                   matrixStats_1.5.0          </span></span>
 <span><span class="co">##  [95] visNetwork_2.1.4            stringi_1.8.7              </span></span>
-<span><span class="co">##  [97] UCSC.utils_1.5.0            lazyeval_0.2.2             </span></span>
+<span><span class="co">##  [97] UCSC.utils_1.5.1            lazyeval_0.2.2             </span></span>
 <span><span class="co">##  [99] yaml_2.3.10                 evaluate_1.0.5             </span></span>
-<span><span class="co">## [101] codetools_0.2-20            interp_1.1-6               </span></span>
-<span><span class="co">## [103] tibble_3.3.0                BiocManager_1.30.26        </span></span>
-<span><span class="co">## [105] cli_3.6.5                   rpart_4.1.24               </span></span>
-<span><span class="co">## [107] systemfonts_1.3.1           jquerylib_0.1.4            </span></span>
-<span><span class="co">## [109] dichromat_2.0-0.1           Rcpp_1.1.0                 </span></span>
-<span><span class="co">## [111] GenomeInfoDb_1.45.12        globals_0.18.0             </span></span>
-<span><span class="co">## [113] grImport_0.9-7              dbplyr_2.5.1               </span></span>
-<span><span class="co">## [115] png_0.1-8                   XML_3.99-0.19              </span></span>
-<span><span class="co">## [117] parallel_4.5.1              pkgdown_2.1.3              </span></span>
-<span><span class="co">## [119] ggplot2_4.0.0               blob_1.2.4                 </span></span>
-<span><span class="co">## [121] prettyunits_1.2.0           jpeg_0.1-11                </span></span>
-<span><span class="co">## [123] latticeExtra_0.6-31         AnnotationFilter_1.33.0    </span></span>
-<span><span class="co">## [125] bitops_1.0-9                txdbmaker_1.5.6            </span></span>
-<span><span class="co">## [127] listenv_0.9.1               VariantAnnotation_1.55.2   </span></span>
-<span><span class="co">## [129] scales_1.4.0                crayon_1.5.3               </span></span>
-<span><span class="co">## [131] BiocStyle_2.37.1            rlang_1.1.6                </span></span>
-<span><span class="co">## [133] KEGGREST_1.49.2</span></span></code></pre>
+<span><span class="co">## [101] codetools_0.2-20            cigarillo_0.99.2           </span></span>
+<span><span class="co">## [103] interp_1.1-6                tibble_3.3.0               </span></span>
+<span><span class="co">## [105] BiocManager_1.30.26         cli_3.6.5                  </span></span>
+<span><span class="co">## [107] rpart_4.1.24                systemfonts_1.3.1          </span></span>
+<span><span class="co">## [109] jquerylib_0.1.4             dichromat_2.0-0.1          </span></span>
+<span><span class="co">## [111] Rcpp_1.1.0                  GenomeInfoDb_1.45.13       </span></span>
+<span><span class="co">## [113] globals_0.18.0              grImport_0.9-7             </span></span>
+<span><span class="co">## [115] dbplyr_2.5.1                png_0.1-8                  </span></span>
+<span><span class="co">## [117] XML_3.99-0.19               parallel_4.5.1             </span></span>
+<span><span class="co">## [119] pkgdown_2.1.3               ggplot2_4.0.0              </span></span>
+<span><span class="co">## [121] blob_1.2.4                  prettyunits_1.2.0          </span></span>
+<span><span class="co">## [123] jpeg_0.1-11                 latticeExtra_0.6-31        </span></span>
+<span><span class="co">## [125] AnnotationFilter_1.33.0     bitops_1.0-9               </span></span>
+<span><span class="co">## [127] txdbmaker_1.5.7             listenv_0.9.1              </span></span>
+<span><span class="co">## [129] VariantAnnotation_1.55.2    scales_1.4.0               </span></span>
+<span><span class="co">## [131] crayon_1.5.3                BiocStyle_2.37.1           </span></span>
+<span><span class="co">## [133] rlang_1.1.6                 KEGGREST_1.49.2</span></span></code></pre>
 </div>
   </div>
 

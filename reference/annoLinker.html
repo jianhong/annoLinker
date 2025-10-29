@@ -19,7 +19,7 @@ subgraph are annotated with all genes in that subgraph."><!-- mathjax --><script
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">annoLinker</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.3</span>
       </span>
     </div>
 
@@ -61,7 +61,7 @@ subgraph are annotated with all genes in that subgraph.</p>
 <span>  <span class="va">peaks</span>,</span>
 <span>  <span class="va">annoData</span>,</span>
 <span>  <span class="va">interactions</span>,</span>
-<span>  bindingType <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"startSite"</span>, <span class="st">"endSite"</span><span class="op">)</span>,</span>
+<span>  bindingType <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"startSite"</span>, <span class="st">"body"</span>, <span class="st">"endSite"</span><span class="op">)</span>,</span>
 <span>  bindingRegion <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">5000</span>, <span class="fl">5000</span><span class="op">)</span>,</span>
 <span>  cluster_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"components"</span>, <span class="st">"louvain"</span>, <span class="st">"walktrap"</span>, <span class="st">"infomap"</span><span class="op">)</span>,</span>
 <span>  extend_anchors <span class="op">=</span> <span class="fl">0</span>,</span>
@@ -91,7 +91,7 @@ interaction data (e.g., Hi-C, ChIA-PET)</p></dd>
 
 
 <dt id="arg-bindingtype">bindingType<a class="anchor" aria-label="anchor" href="#arg-bindingtype"></a></dt>
-<dd><p>Character, one of "startSite", or "endSite"</p></dd>
+<dd><p>Character, one of "startSite", "body", or "endSite"</p></dd>
 
 
 <dt id="arg-bindingregion">bindingRegion<a class="anchor" aria-label="anchor" href="#arg-bindingregion"></a></dt>
