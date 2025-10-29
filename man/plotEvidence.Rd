@@ -21,7 +21,7 @@ plotEvidence(
 
 \item{output}{Output of the plot.}
 
-\item{colors}{Colors settting for the plot.}
+\item{colors}{Colors setting for the plot.}
 
 \item{txdb, org}{The TxDb and OrgDb object used for annotation plot.}
 }
