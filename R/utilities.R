@@ -15,38 +15,47 @@ validate_inputs_graph <- function(peaks, annoData, interactions,
     stop("'annoData' must be an annoGR or GRanges object", call. = FALSE)
   }
 
+  if(length(annoData)==0){
+    stop("'annoData' is empty.", call. = FALSE)
+  }
+
+  if(length(annoData)!=length(names(annoData))){
+    stop("names of 'annoData' is missing!", call. = FALSE)
+  }
+
+  if (length(intersect(seqlevelsStyle(peaks), seqlevelsStyle(annoData))) < 1) {
+    stop("Please check the seqlevels style of your 'peaks' and 'annoData'",
+         call. = FALSE)
+  }
+
+  if (!inherits(interactions, c("GRanges", "GInteractions", "Pairs"))) {
+    stop("'interactions' must be an GInteractions object", call. = FALSE)
+  }
+
+  if (is(interactions, "GRanges")) {
+    if (length(interactions$blocks) == 0) {
+      stop("If interactions is GRanges, the blocks metadata is required",
+           call. = FALSE)
+    }
+    if (any(elementNROWS(interactions$blocks) != 2)) {
+      stop("If interactions is GRanges, the length of ",
+           "each metadata blocks must be 2.", call. = FALSE)
+    }
+  }
+
+  if (length(intersect(seqlevelsStyle(peaks),
+                       seqlevelsStyle(first(interactions)))) < 1) {
+    stop("Please check the seqlevels style of your 'peaks' and 'interactions'",
+         call. = FALSE)
+  }
+
   if (length(bindingRegion) != 2) {
     stop("'bindingRegion' must have exactly 2 elements", call. = FALSE)
   }
 
   if (length(interactionDistanceRange) != 2) {
-    stop("'interactionDistanceRange' must have exactly 2 elements", call. = FALSE)
-  }
-
-  if (is.null(annoData$gene_id) && is.null(annoData$symbol) &&
-    is.null(annoData$gene_name)) {
-    warning("annoData lacks gene identifiers (gene_id, symbol, gene_name)")
-  }
-
-  if (!inherits(interactions, c("GRanges", "GInteractions", "Pairs"))) {
-    stop("interactions must be an GInteractions object", call. = FALSE)
-  }
-
-  if (is(interactions, "GRanges")) {
-    if (length(interactions$blocks) == 0) {
-      stop("If interactions is GRanges, the blocks metadata is required", call. = FALSE)
-    }
-    if (any(elementNROWS(interactions$blocks) != 2)) {
-      stop("If interactions is GRanges, the length of each metadata blocks must be 2.", call. = FALSE)
-    }
-  }
-
-  if (length(intersect(seqlevelsStyle(peaks), seqlevelsStyle(annoData))) < 1) {
-    stop("Please check the seqlevels style of your peaks and annoData", call. = FALSE)
-  }
-
-  if (length(intersect(seqlevelsStyle(peaks), seqlevelsStyle(first(interactions)))) < 1) {
-    stop("Please check the seqlevels style of your peaks and interactions", call. = FALSE)
+    stop("'interactionDistanceRange' must have exactly 2 elements",
+         call. = FALSE)
   }
 }
 
@@ -100,14 +109,22 @@ filterInteractions <- function(interactions, interactionDistanceRange) {
 # ============================================================================
 # FIND ANNOTATION REGIONS
 # ============================================================================
-#' @importFrom GenomicRanges promoters terminators
+#' @importFrom GenomicRanges promoters terminators trim
+#' @importFrom BiocGenerics start<- end<-
 get_annotation_regions <- function(annoData, bindingType, bindingRegion) {
   switch(bindingType,
-    nearestBiDirectionalPromoters = {
-      suppressWarnings(promoters(annoData,
-        upstream = abs(bindingRegion[1]),
-        downstream = bindingRegion[2]
-      ))
+    body = {
+      s <- ifelse(as.character(strand(annoData))=='-',
+                  start(annoData) - bindingRegion[2],
+                  start(annoData) - abs(bindingRegion[1]))
+      s[s<1] <- 1
+      e <- ifelse(as.character(strand(annoData))=='-',
+                  end(annoData) + abs(bindingRegion[1]),
+                  end(annoData) + bindingRegion[2])
+      out <- annoData
+      start(out) <- s
+      end(out) <- e
+      trim(out)
     },
     startSite = {
       suppressWarnings(promoters(annoData,
@@ -211,7 +228,7 @@ add_cluster_id <- function(hits, cluster_df) {
   stopifnot(is(cluster_df, "data.frame"))
   hits <- as.data.frame(hits)
   hits$cluster_id <- cluster_df$cluster_id[match(
-    hits$subjectHits,
+    hits[, 2], # subjectHits
     cluster_df$anchor_id
   )]
   return(hits)
@@ -230,10 +247,6 @@ find_shortest_path <- function(peak_ol_anno, interaction_graph,
     "subjectHits.annotation"
   )])
   ## do not try shortest_paths in batch, unpredictable
-
-  # choose the apply function based on `parallel`
-  apply_fun <- if (parallel) future_lapply else lapply
-
   # define the core worker function
   get_shortest_path_edges <- function(i, p = NULL) {
     sp_edges <- as_edgelist(interaction_graph$graph)[
@@ -255,18 +268,32 @@ find_shortest_path <- function(peak_ol_anno, interaction_graph,
 
   # wrap everything depending on verbosity
   n_pairs <- nrow(peak_ol_anno_subset)
-  args <- list(X=seq_len(n_pairs), FUN=get_shortest_path_edges)
-  if(parallel){
-    args$future.seed <- TRUE
-  }
-  sp <- if(verbose){
-    on.exit(message('Please do not forget to run future::plan(future::sequential) to release the resources'))
-    with_progress({
-      args$p <- progressor(steps = n_pairs)
-      do.call(apply_fun, args)
-    })
+  if(verbose){
+    if(parallel){
+      on.exit(message('Please do not forget to run ',
+      'future::plan(future::sequential) to release the resources'))
+      with_progress({
+        p <- progressor(steps = n_pairs)
+        sp <- future_lapply(seq_len(n_pairs),
+                            FUN=get_shortest_path_edges,
+                            p=p,
+                            future.seed=TRUE,
+                            future.chunk.size = 1)
+      })
+    }else{
+      with_progress({
+        p <- progressor(steps = n_pairs)
+        sp <- lapply(seq_len(n_pairs), get_shortest_path_edges, p=p)
+      })
+    }
   }else{
-    do.call(apply_fun, args)
+    # choose the apply function based on `parallel`
+    apply_fun <- if (parallel) future_lapply else lapply
+    args <- list(X=seq_len(n_pairs), FUN=get_shortest_path_edges)
+    if(parallel){
+      args$future.seed <- TRUE
+    }
+    sp <- do.call(apply_fun, args)
   }
 
   names(sp) <- apply(peak_ol_anno_subset, 1, paste, collapse = ",")

@@ -30,6 +30,8 @@
 \alias{anno_featurebin,annoLinkerResult,numeric-method}
 \alias{length,annoLinkerResult-method}
 \alias{show,annoLinkerResult-method}
+\alias{head,annoLinkerResult-method}
+\alias{head,annoLinkerResult,ANY-method}
 \title{Class \code{"annoLinkerResult"}}
 \usage{
 \S4method{as.data.frame}{annoLinkerResult}(x, row.names = NULL, optional = FALSE, ...)
@@ -69,6 +71,8 @@ anno_featurebin(x, i)
 \S4method{length}{annoLinkerResult}(x)
 
 \S4method{show}{annoLinkerResult}(object)
+
+\S4method{head}{annoLinkerResult}(x, ...)
 }
 \arguments{
 \item{x, object}{An annoLinkerResult object.}

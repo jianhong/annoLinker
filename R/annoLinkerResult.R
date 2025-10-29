@@ -197,3 +197,11 @@ setMethod("show", signature(object="annoLinkerResult"), function(object){
   show(object@annotated_peaks)
   show(object@graph)
 })
+
+#' @rdname annoLinkerResult-class
+#' @exportMethod head
+#' @importFrom utils head
+#' @aliases head,annoLinkerResult,ANY-method
+setMethod("head", signature(x="annoLinkerResult"), function(x, ...){
+  head(x@annotated_peaks, ...)
+})

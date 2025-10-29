@@ -1,0 +1,12 @@
+require("annoLinker") || stop("unable to load Package:annoLinker")
+require("testthat") || stop("unable to load testthat")
+require("rtracklayer") || stop("unable to load rtracklayer")
+require("TxDb.Drerio.UCSC.danRer10.refGene") ||
+  stop("unable to load TxDb.Drerio.UCSC.danRer10.refGene")
+require("org.Dr.eg.db") || stop("unable to load org.Dr.eg.db")
+require("InteractionSet") || stop("unable to load InteractionSet")
+require("GenomicRanges") || stop("unable to load GenomicRanges")
+require("igraph") || stop("unable to load igraph")
+require("S4Vectors") || stop("unable to load S4Vectors")
+require("future") || stop('unable to load future')
+test_check("annoLinker")

@@ -8,7 +8,7 @@ annoLinker(
   peaks,
   annoData,
   interactions,
-  bindingType = c("startSite", "endSite"),
+  bindingType = c("startSite", "body", "endSite"),
   bindingRegion = c(-5000, 5000),
   cluster_method = c("components", "louvain", "walktrap", "infomap"),
   extend_anchors = 0,
@@ -27,7 +27,7 @@ annoLinker(
 \item{interactions}{GInteractions, or Pairs object with
 interaction data (e.g., Hi-C, ChIA-PET)}
 
-\item{bindingType}{Character, one of "startSite", or "endSite"}
+\item{bindingType}{Character, one of "startSite", "body", or "endSite"}
 
 \item{bindingRegion}{Numeric vector of length 2 defining promoter window
 (e.g., c(-5000, 5000))}

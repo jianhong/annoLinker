@@ -9,7 +9,7 @@
 #' @param annoData annoGR or GRanges object with gene annotations
 #' @param interactions GInteractions, or Pairs object with
 #'   interaction data (e.g., Hi-C, ChIA-PET)
-#' @param bindingType Character, one of "startSite", or "endSite"
+#' @param bindingType Character, one of "startSite", "body", or "endSite"
 #' @param bindingRegion Numeric vector of length 2 defining promoter window
 #'   (e.g., c(-5000, 5000))
 #' @param cluster_method Character, clustering method: "components" (connected
@@ -45,7 +45,7 @@ annoLinker <- function(
   peaks,
   annoData,
   interactions,
-  bindingType = c("startSite", "endSite"),
+  bindingType = c("startSite", "body", "endSite"),
   bindingRegion = c(-5000, 5000),
   cluster_method = c("components", "louvain", "walktrap", "infomap"),
   extend_anchors = 0,

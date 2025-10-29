@@ -6,7 +6,7 @@ package: "`r BiocStyle::pkg_ver('annoLinker')`"
 abstract: >
   Annotating genomic regions through chromatin interaction links.
 vignette: >
-  %\VignetteIndexEntry{annoLinker Vignette: Annotating genomic regions through chromatin interaction links}
+  %\VignetteIndexEntry{annoLinker Vignette: Genomic peaks are rapidly annotated using DNA interaction data by constructing interaction networks with igraph. Each peak overlapping a node within a connected subgraph is annotated with all genes linked to that subgraph, enabling efficient propagation of functional associations through chromatin interaction networks.}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 output:
@@ -18,7 +18,7 @@ output:
     fig_caption: true
 ---
 
-```{r, echo=FALSE, results="hide", warning=FALSE}
+```{r setup, echo=FALSE, results="hide", warning=FALSE}
 suppressPackageStartupMessages({
   library(annoLinker)
   library(rtracklayer)
@@ -28,7 +28,30 @@ suppressPackageStartupMessages({
 knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 ```
 
+## Introduction
+
+Functional annotation of genomic regions is a key step in understanding regulatory mechanisms underlying gene expression and phenotype variation. Traditional annotation methods typically rely on the linear proximity of genomic features, such as linking peaks to the nearest gene, which can overlook the complex three-dimensional organization of the genome. Recent advances in chromatin conformation capture technologies (e.g., Hi-C, ChIA-PET, PLAC-seq, HiCAR) have revealed that regulatory elements often interact with distant genomic loci through chromatin loops, bringing enhancers, promoters, and other elements into physical contact.
+
+`annoLinker` is designed to bridge this gap by annotating genomic regions through chromatin interaction links. Rather than relying solely on linear genomic distance, `annoLinker` integrates chromatin contact information to establish biologically meaningful connections between regulatory regions and their potential target genes. This approach complements traditional annotation methods by enabling the functional assignment of distal elements such as enhancers and silencers.
+
+The package provides a streamlined workflow to link user-defined genomic regions with genomic interactions (loops), annotate the associated genes, and visualize the resulting interaction networks. By leveraging interaction data, `annoLinker` enables users to explore functional relationships that are invisible in linear genome coordinates and to generate more comprehensive biological interpretations from genomic assays such as ATAC-seq, ChIP-seq, or Methyl-seq.
+
+## Installation
+
+```{r installation, eval=FALSE}
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("jianhong/annoLinker")
+```
+
 ## Quick start
+
+The input to `annoLinker` consists of three components: the genomic regions of interest to be annotated, the annotation data, and the chromatin interaction information. Both the peak list and annotation data should be provided as `GRanges` objects, while genomic interactions can be supplied as either `GInteractions` or `Pairs` objects.
+
+By default, `annoLinker` annotates peaks that fall within the *promoter region*, defined as 5 kb upstream to 5 kb downstream of the annotated features. Users can optionally modify this definition to annotate regions within the *gene body* or *downstream* segments instead.
+
+The output is returned as an `annoLinkerResult` object, which can be easily converted into a `GRanges` or `data.frame` for downstream analysis and visualization.
 
 ```{r quickstart}
 library(annoLinker)
@@ -45,7 +68,17 @@ interactions <- rtracklayer::import(file.path(extPath, 'interaction.bedpe'))
 ## load annotation data
 annoData <- genes(txdb)
 anno <- annoLinker(peaks, annoData, interactions, verbose=TRUE)
-n <- 1 #length(anno$annotated_peaks$evidences)
+class(anno)
+head(anno, n=2)
+anno_peaks(anno)[c(1, 2)]
+head(as(anno, 'GRanges'), n=2)
+```
+
+The `plotEvidence()` function allows users to visualize the annotation evidence chain, illustrating how genomic regions are linked through chromatin interactions. Users can plot the annotation evidence as either a *network graph* or a *genomic track* integrated with gene annotation information.
+
+```{r datavisualization}
+## plot the evidence for the first annotation
+n <- 1
 plotEvidence(anno, event=1,
              output='htmlWidget')
 plotEvidence(anno, event=1,
@@ -53,6 +86,7 @@ plotEvidence(anno, event=1,
              txdb=TxDb.Drerio.UCSC.danRer10.refGene,
              org=org.Dr.eg.db)
 ```
+
 
 ## SessionInfo
 
