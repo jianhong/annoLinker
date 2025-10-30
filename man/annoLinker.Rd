@@ -11,7 +11,7 @@ annoLinker(
   bindingType = c("startSite", "body", "endSite"),
   bindingRegion = c(-5000, 5000),
   cluster_method = c("components", "louvain", "walktrap", "infomap"),
-  extend_anchors = 0,
+  maxgap = 0,
   interactionDistanceRange = c(10000, 1e+07),
   addEvidence = FALSE,
   parallel = FALSE,
@@ -35,7 +35,7 @@ interaction data (e.g., Hi-C, ChIA-PET)}
 \item{cluster_method}{Character, clustering method: "components" (connected
 components), "louvain", "walktrap", or "infomap"}
 
-\item{extend_anchors}{Integer, bp to extend interaction anchors for
+\item{maxgap}{Integer, bp to extend interaction anchors for
 overlap detection (default: 0)}
 
 \item{interactionDistanceRange}{Numeric vector of length 2 defining the minimal

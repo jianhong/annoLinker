@@ -1,6 +1,6 @@
-Changes in version 0.9.0
+Changes in version 0.99.1
 
-  o prepare to submit to Bioconductor
+  o fix a bug in removing duplicates.
 
 Changes in version 0.1.3
 

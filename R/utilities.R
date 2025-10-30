@@ -325,8 +325,7 @@ annotate_peaks_with_clusters <- function(
     as.character(interRegion[peak_ol_anno$subjectHits.peak])
   annoted_peaks$feature_bin <-
     as.character(interRegion[peak_ol_anno$subjectHits.annotation])
-  keep <- !duplicated(annoted_peaks) |
-    !duplicated(mcols(annoted_peaks))
+  keep <- !duplicated(as.data.frame(annoted_peaks))
   annoted_peaks <- annoted_peaks[keep]
   peak_ol_anno <- peak_ol_anno[keep, , drop=FALSE]
   if(length(evidences)>0){

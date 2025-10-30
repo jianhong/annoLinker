@@ -14,7 +14,7 @@
 #'   (e.g., c(-5000, 5000))
 #' @param cluster_method Character, clustering method: "components" (connected
 #'   components), "louvain", "walktrap", or "infomap"
-#' @param extend_anchors Integer, bp to extend interaction anchors for
+#' @param maxgap Integer, bp to extend interaction anchors for
 #'   overlap detection (default: 0)
 #' @param interactionDistanceRange Numeric vector of length 2 defining the minimal
 #'   and maximal distance of interactions. This is used to make sure the annotations
@@ -48,7 +48,7 @@ annoLinker <- function(
   bindingType = c("startSite", "body", "endSite"),
   bindingRegion = c(-5000, 5000),
   cluster_method = c("components", "louvain", "walktrap", "infomap"),
-  extend_anchors = 0,
+  maxgap = 0,
   interactionDistanceRange = c(10000, 10000000),
   addEvidence = FALSE,
   parallel = FALSE,
@@ -104,12 +104,12 @@ annoLinker <- function(
     annoData <- as(annoData, "GRanges")
   }
   annoRegion <- get_annotation_regions(annoData, bindingType, bindingRegion)
-  annoOL <- findOverlaps(annoRegion, interRegion, maxgap = extend_anchors)
+  annoOL <- findOverlaps(annoRegion, interRegion, maxgap = maxgap)
   if (length(annoOL) == 0) {
     message("No annotation found overlapping interaction anchors")
     return(NULL)
   }
-  peakOL <- findOverlaps(peaks, interRegion, maxgap = extend_anchors)
+  peakOL <- findOverlaps(peaks, interRegion, maxgap = maxgap)
   if (length(peakOL) == 0) {
     message("No peak found overlapping interaction anchors")
     return(NULL)
