@@ -1,3 +1,7 @@
+Changes in version 0.99.2
+
+  o Add the scripts for extdata.
+
 Changes in version 0.99.1
 
   o fix a bug in removing duplicates.
