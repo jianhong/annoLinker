@@ -98,8 +98,9 @@ interaction graph, which is an igraph graph.
 library(igraph)
 library(GenomicRanges)
 new("annoLinkerResult",
- annotated_peaks=GRanges(),
- graph=make_empty_graph(),
- clusters=data.frame())
+    annotated_peaks = GRanges(),
+    graph = make_empty_graph(),
+    clusters = data.frame()
+)
 }
 \keyword{classes}

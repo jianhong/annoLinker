@@ -38,9 +38,9 @@ components), "louvain", "walktrap", or "infomap"}
 \item{maxgap}{Integer, bp to extend interaction anchors for
 overlap detection (default: 0)}
 
-\item{interactionDistanceRange}{Numeric vector of length 2 defining the minimal
-and maximal distance of interactions. This is used to make sure the annotations
-are not supper far away.}
+\item{interactionDistanceRange}{Numeric vector of length 2 defining the
+minimal and maximal distance of interactions. This is used to make sure
+the annotations are not supper far away.}
 
 \item{addEvidence}{Logical, add evidence to the metadata or not.}
 
@@ -63,10 +63,10 @@ subgraph are annotated with all genes in that subgraph.
 \examples{
 ## read the peaks and interactions
 library(rtracklayer)
-extPath <- system.file('extdata', package='annoLinker')
-peaks <- rtracklayer::import(file.path(extPath, 'peaks.bed'))
-interactions <- rtracklayer::import(file.path(extPath, 'interaction.bedpe'))
+extPath <- system.file("extdata", package = "annoLinker")
+peaks <- rtracklayer::import(file.path(extPath, "peaks.bed"))
+interactions <- rtracklayer::import(file.path(extPath, "interaction.bedpe"))
 library(TxDb.Drerio.UCSC.danRer10.refGene)
 annoData <- genes(TxDb.Drerio.UCSC.danRer10.refGene)
-anno <- annoLinker(peaks, annoData, interactions, verbose=TRUE)
+anno <- annoLinker(peaks, annoData, interactions, verbose = TRUE)
 }

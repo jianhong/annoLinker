@@ -32,12 +32,18 @@ htmlWidget or plots.
 Plot interaction network for visualization
 }
 \examples{
-anno <- readRDS(system.file('extdata', 'sample_res.rds', package='annoLinker'))
+anno <- readRDS(system.file("extdata", "sample_res.rds",
+    package = "annoLinker"
+))
 library(org.Dr.eg.db)
 library(TxDb.Drerio.UCSC.danRer10.refGene)
-n <- 1 #length(anno$annotated_peaks$evidences)
-plotEvidence(anno, event=n,
- output='htmlWidget')
-plotEvidence(anno, event=n,
- output='trackPlot')
+n <- 1 # length(anno$annotated_peaks$evidences)
+plotEvidence(anno,
+    event = n,
+    output = "htmlWidget"
+)
+plotEvidence(anno,
+    event = n,
+    output = "trackPlot"
+)
 }

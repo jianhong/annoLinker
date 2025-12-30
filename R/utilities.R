@@ -6,65 +6,53 @@
 #' @importFrom S4Vectors elementNROWS
 #' @importFrom methods as is
 validate_inputs_graph <- function(peaks, annoData, interactions,
-                                  bindingRegion, interactionDistanceRange) {
-  if (!inherits(peaks, "GRanges")) {
-    stop("'peaks' must be a GRanges object", call. = FALSE)
-  }
-
-  if (!inherits(annoData, c("GRanges"))) {
-    stop("'annoData' must be an annoGR or GRanges object", call. = FALSE)
-  }
-
-  if (length(annoData) == 0) {
-    stop("'annoData' is empty.", call. = FALSE)
-  }
-
-  if (length(annoData) != length(names(annoData))) {
-    stop("names of 'annoData' is missing!", call. = FALSE)
-  }
-
-  if (length(intersect(seqlevelsStyle(peaks), seqlevelsStyle(annoData))) < 1) {
-    stop("Please check the seqlevels style of your 'peaks' and 'annoData'",
-      call. = FALSE
-    )
-  }
-
-  if (!inherits(interactions, c("GRanges", "GInteractions", "Pairs"))) {
-    stop("'interactions' must be an GInteractions object", call. = FALSE)
-  }
-
-  if (is(interactions, "GRanges")) {
-    if (length(interactions$blocks) == 0) {
-      stop("If interactions is GRanges, the blocks metadata is required",
-        call. = FALSE
-      )
+        bindingRegion, interactionDistanceRange) {
+    if (!inherits(peaks, "GRanges")) {
+        stop("'peaks' must be a GRanges object", call. = FALSE)
     }
-    if (any(elementNROWS(interactions$blocks) != 2)) {
-      stop("If interactions is GRanges, the length of ",
-        "each metadata blocks must be 2.",
-        call. = FALSE
-      )
+    if (!inherits(annoData, c("GRanges"))) {
+        stop("'annoData' must be an annoGR or GRanges object", call. = FALSE)
     }
-  }
-
-  if (length(intersect(
-    seqlevelsStyle(peaks),
-    seqlevelsStyle(first(interactions))
-  )) < 1) {
-    stop("Please check the seqlevels style of your 'peaks' and 'interactions'",
-      call. = FALSE
-    )
-  }
-
-  if (length(bindingRegion) != 2) {
-    stop("'bindingRegion' must have exactly 2 elements", call. = FALSE)
-  }
-
-  if (length(interactionDistanceRange) != 2) {
-    stop("'interactionDistanceRange' must have exactly 2 elements",
-      call. = FALSE
-    )
-  }
+    if (length(annoData) == 0) {
+        stop("'annoData' is empty.", call. = FALSE)
+    }
+    if (length(annoData) != length(names(annoData))) {
+        stop("names of 'annoData' is missing!", call. = FALSE)
+    }
+    if (length(intersect(
+        seqlevelsStyle(peaks),
+        seqlevelsStyle(annoData)
+    )) < 1) {
+        stop("Please check the seqlevels style of your 'peaks' and 'annoData'",
+            call. = FALSE)
+    }
+    if (!inherits(interactions, c("GRanges", "GInteractions", "Pairs"))) {
+        stop("'interactions' must be an GInteractions object", call. = FALSE)
+    }
+    if (is(interactions, "GRanges")) {
+        if (length(interactions$blocks) == 0) {
+            stop("If interactions is GRanges, the blocks metadata is required",
+                call. = FALSE)}
+        if (any(elementNROWS(interactions$blocks) != 2)) {
+            stop("If interactions is GRanges, the length of ",
+                "each metadata blocks must be 2.",
+                call. = FALSE)}
+    }
+    if (length(intersect(
+        seqlevelsStyle(peaks),
+        seqlevelsStyle(first(interactions))
+    )) < 1) {
+        stop("Please check the seqlevels style of ",
+            "your 'peaks' and 'interactions'",
+            call. = FALSE)
+    }
+    if (length(bindingRegion) != 2) {
+        stop("'bindingRegion' must have exactly 2 elements", call. = FALSE)
+    }
+    if (length(interactionDistanceRange) != 2) {
+        stop("'interactionDistanceRange' must have exactly 2 elements",
+            call. = FALSE)
+    }
 }
 
 # ============================================================================
@@ -77,41 +65,41 @@ validate_inputs_graph <- function(peaks, annoData, interactions,
 #' @importFrom Seqinfo seqnames
 #' @importFrom InteractionSet GInteractions pairdist
 filterInteractions <- function(interactions, interactionDistanceRange) {
-  if (!is(interactions, "GInteractions")) {
-    if (is(interactions, "Pairs")) {
-      ## is Pairs
-      interactions <- GInteractions(
-        first(interactions),
-        second(interactions),
-        score = mcols(interactions)$score
-      )
+    if (!is(interactions, "GInteractions")) {
+        if (is(interactions, "Pairs")) {
+            ## is Pairs
+            interactions <- GInteractions(
+                first(interactions),
+                second(interactions),
+                score = mcols(interactions)$score
+            )
+        }
+        if (is(interactions, "GRanges")) {
+            HiC_FIRST <- lapply(interactions$blocks, `[`, 1)
+            HiC_SECOND <- lapply(
+                interactions$blocks, `[`,
+                2
+            )
+            HiC_FIRST <- unlist(IRangesList(HiC_FIRST))
+            HiC_SECOND <- unlist(IRangesList(HiC_SECOND))
+            HiC_FIRST <- shift(HiC_FIRST, start(interactions) -
+                1)
+            HiC_SECOND <- shift(HiC_SECOND, start(interactions) -
+                1)
+            interactions <-
+                GInteractions(
+                    GRanges(seqnames(interactions), HiC_FIRST),
+                    GRanges(seqnames(interactions), HiC_SECOND),
+                    score = mcols(interactions)$score
+                )
+        }
     }
-    if (is(interactions, "GRanges")) {
-      HiC_FIRST <- lapply(interactions$blocks, `[`, 1)
-      HiC_SECOND <- lapply(
-        interactions$blocks, `[`,
-        2
-      )
-      HiC_FIRST <- unlist(IRangesList(HiC_FIRST))
-      HiC_SECOND <- unlist(IRangesList(HiC_SECOND))
-      HiC_FIRST <- shift(HiC_FIRST, start(interactions) -
-        1)
-      HiC_SECOND <- shift(HiC_SECOND, start(interactions) -
-        1)
-      interactions <-
-        GInteractions(
-          GRanges(seqnames(interactions), HiC_FIRST),
-          GRanges(seqnames(interactions), HiC_SECOND),
-          score = mcols(interactions)$score
-        )
-    }
-  }
-  d <- pairdist(interactions)
-  gi_filt <- interactions[!is.na(d) &
-    d >= interactionDistanceRange[1] &
-    d <= interactionDistanceRange[2]]
-  ## clean up
-  GInteractions(first(gi_filt), second(gi_filt))
+    d <- pairdist(interactions)
+    gi_filt <- interactions[!is.na(d) &
+        d >= interactionDistanceRange[1] &
+        d <= interactionDistanceRange[2]]
+    ## clean up
+    GInteractions(first(gi_filt), second(gi_filt))
 }
 
 # ============================================================================
@@ -120,38 +108,38 @@ filterInteractions <- function(interactions, interactionDistanceRange) {
 #' @importFrom GenomicRanges promoters terminators trim
 #' @importFrom BiocGenerics start<- end<-
 get_annotation_regions <- function(annoData, bindingType, bindingRegion) {
-  switch(bindingType,
-    body = {
-      s <- ifelse(as.character(strand(annoData)) == "-",
-        start(annoData) - bindingRegion[2],
-        start(annoData) - abs(bindingRegion[1])
-      )
-      s[s < 1] <- 1
-      e <- ifelse(as.character(strand(annoData)) == "-",
-        end(annoData) + abs(bindingRegion[1]),
-        end(annoData) + bindingRegion[2]
-      )
-      out <- annoData
-      start(out) <- s
-      end(out) <- e
-      trim(out)
-    },
-    startSite = {
-      ## to suppress the warning of different seqinfos.
-      suppressWarnings(promoters(annoData,
-        upstream = abs(bindingRegion[1]),
-        downstream = bindingRegion[2]
-      ))
-    },
-    endSite = {
-      ## to suppress the warning of different seqinfos.
-      suppressWarnings(terminators(annoData,
-        upstream = abs(bindingRegion[1]),
-        downstream = bindingRegion[2]
-      ))
-    },
-    stop("Unsupported binding type: ", bindingType, call. = FALSE)
-  )
+    switch(bindingType,
+        body = {
+            s <- ifelse(as.character(strand(annoData)) == "-",
+                start(annoData) - bindingRegion[2],
+                start(annoData) - abs(bindingRegion[1])
+            )
+            s[s < 1] <- 1
+            e <- ifelse(as.character(strand(annoData)) == "-",
+                end(annoData) + abs(bindingRegion[1]),
+                end(annoData) + bindingRegion[2]
+            )
+            out <- annoData
+            start(out) <- s
+            end(out) <- e
+            trim(out)
+        },
+        startSite = {
+            ## to suppress the warning of different seqinfos.
+            suppressWarnings(promoters(annoData,
+                upstream = abs(bindingRegion[1]),
+                downstream = bindingRegion[2]
+            ))
+        },
+        endSite = {
+            ## to suppress the warning of different seqinfos.
+            suppressWarnings(terminators(annoData,
+                upstream = abs(bindingRegion[1]),
+                downstream = bindingRegion[2]
+            ))
+        },
+        stop("Unsupported binding type: ", bindingType, call. = FALSE)
+    )
 }
 
 
@@ -160,75 +148,77 @@ get_annotation_regions <- function(annoData, bindingType, bindingRegion) {
 # ============================================================================
 #' @importFrom igraph graph_from_data_frame simplify
 build_interaction_graph <- function(anchors, weight, cluster_method, ...) {
-  # Create edge list: genes connected through same interaction
-  edge_list <- do.call(cbind, anchors)
+    # Create edge list: genes connected through same interaction
+    edge_list <- do.call(cbind, anchors)
 
-  if (nrow(edge_list) == 0) {
-    return(list(graph = NULL, clusters = NULL))
-  }
+    if (nrow(edge_list) == 0) {
+        return(list(graph = NULL, clusters = NULL))
+    }
 
-  if (!missing(weight)) {
-    edge_list <- cbind(edge_list, weight = weight)
-  }
+    if (!missing(weight)) {
+        edge_list <- cbind(edge_list, weight = weight)
+    }
 
-  # Build graph
-  g <- graph_from_data_frame(edge_list, directed = FALSE)
+    # Build graph
+    g <- graph_from_data_frame(edge_list, directed = FALSE)
 
-  # Simplify: remove self-loops and multiple edges
-  g <- simplify(g, remove.multiple = TRUE, remove.loops = TRUE)
+    # Simplify: remove self-loops and multiple edges
+    g <- simplify(g, remove.multiple = TRUE, remove.loops = TRUE)
 
-  # Detect clusters
-  clusters <- detect_clusters(g, cluster_method, ...)
+    # Detect clusters
+    clusters <- detect_clusters(g, cluster_method, ...)
 
-  return(list(
-    graph = g,
-    clusters = clusters
-  ))
+    return(list(
+        graph = g,
+        clusters = clusters
+    ))
 }
 
 # ============================================================================
 # DETECT CLUSTERS
 # ============================================================================
-#' @importFrom igraph components cluster_louvain cluster_walktrap cluster_infomap membership V
+#' @importFrom igraph components cluster_louvain cluster_walktrap
+#'  cluster_infomap membership V
 detect_clusters <- function(g, cluster_method, ...) {
-  clusters_obj <- switch(cluster_method,
-    components = {
-      components(g)
-    },
-    louvain = {
-      cluster_louvain(g, ...)
-    },
-    walktrap = {
-      cluster_walktrap(g, ...)
-    },
-    infomap = {
-      cluster_infomap(g, ...)
-    },
-    stop("Unknown cluster method: ",
-      cluster_method,
-      call. = FALSE
+    clusters_obj <- switch(cluster_method,
+        components = {
+            components(g)
+        },
+        louvain = {
+            cluster_louvain(g, ...)
+        },
+        walktrap = {
+            cluster_walktrap(g, ...)
+        },
+        infomap = {
+            cluster_infomap(g, ...)
+        },
+        stop("Unknown cluster method: ",
+            cluster_method,
+            call. = FALSE
+        )
     )
-  )
 
-  # Extract membership
-  if (cluster_method == "components") {
-    membership <- clusters_obj$membership
-  } else {
-    membership <- membership(clusters_obj)
-  }
+    # Extract membership
+    if (cluster_method == "components") {
+        membership <- clusters_obj$membership
+    } else {
+        membership <- membership(clusters_obj)
+    }
 
-  # Create cluster data frame
-  cluster_df <- data.frame(
-    anchor_id = V(g)$name,
-    cluster_id = membership,
-    stringsAsFactors = FALSE
-  )
+    # Create cluster data frame
+    cluster_df <- data.frame(
+        anchor_id = V(g)$name,
+        cluster_id = membership,
+        stringsAsFactors = FALSE
+    )
 
-  # Add cluster size
-  cluster_sizes <- table(membership)
-  cluster_df$cluster_size <- cluster_sizes[as.character(cluster_df$cluster_id)]
+    # Add cluster size
+    cluster_sizes <- table(membership)
+    cluster_df$cluster_size <-
+        cluster_sizes[as.character(cluster_df$cluster_id)]
 
-  return(cluster_df)
+    return(cluster_df)
 }
 
 # ============================================================================
@@ -236,14 +226,14 @@ detect_clusters <- function(g, cluster_method, ...) {
 # ============================================================================
 
 add_cluster_id <- function(hits, cluster_df) {
-  stopifnot(is(hits, "Hits"))
-  stopifnot(is(cluster_df, "data.frame"))
-  hits <- as.data.frame(hits)
-  hits$cluster_id <- cluster_df$cluster_id[match(
-    hits[, 2], # subjectHits
-    cluster_df$anchor_id
-  )]
-  return(hits)
+    stopifnot(is(hits, "Hits"))
+    stopifnot(is(cluster_df, "data.frame"))
+    hits <- as.data.frame(hits)
+    hits$cluster_id <- cluster_df$cluster_id[match(
+        hits[, 2], # subjectHits
+        cluster_df$anchor_id
+    )]
+    return(hits)
 }
 
 # ============================================================================
@@ -253,65 +243,53 @@ add_cluster_id <- function(hits, cluster_df) {
 #' @importFrom igraph shortest_paths as_edgelist
 #' @importFrom progressr with_progress progressor
 find_shortest_path <- function(peak_ol_anno, interaction_graph,
-                               parallel = FALSE, verbose = FALSE) {
-  peak_ol_anno_subset <- unique(peak_ol_anno[, c(
-    "subjectHits.peak",
-    "subjectHits.annotation"
-  )])
-  ## do not try shortest_paths in batch, unpredictable
-  # define the core worker function
-  get_shortest_path_edges <- function(i, p = NULL) {
-    sp_edges <- as_edgelist(interaction_graph$graph)[
-      shortest_paths(
-        interaction_graph$graph,
-        from = as.character(peak_ol_anno_subset$subjectHits.peak[[i]]),
-        to = as.character(peak_ol_anno_subset$subjectHits.annotation[[i]]),
-        mode = "all",
-        output = "epath"
-      )$epath[[1]], ,
-      drop = FALSE
-    ]
-
-    if (!is.null(p)) p() # update progress if verbose
-
-    sp_edges
-  }
-
-  # wrap everything depending on verbosity
-  n_pairs <- nrow(peak_ol_anno_subset)
-  if (verbose) {
-    if (parallel) {
-      on.exit(message(
-        "Please do not forget to run ",
-        "future::plan(future::sequential) to release the resources"
-      ))
-      with_progress({
-        p <- progressor(steps = n_pairs)
-        sp <- future_lapply(seq_len(n_pairs),
-          FUN = get_shortest_path_edges,
-          p = p,
-          future.seed = TRUE,
-          future.chunk.size = 1
-        )
-      })
+                        parallel = FALSE, verbose = FALSE) {
+    peak_ol_anno_subset <- unique(peak_ol_anno[, c(
+        "subjectHits.peak", "subjectHits.annotation")])
+    ## do not try shortest_paths in batch, unpredictable
+    # define the core worker function
+    get_shortest_path_edges <- function(i, p = NULL) {
+        sp_edges <- as_edgelist(interaction_graph$graph)[
+            shortest_paths(
+                interaction_graph$graph,
+                from = as.character(peak_ol_anno_subset$subjectHits.peak[[i]]),
+                to = as.character(
+                    peak_ol_anno_subset$subjectHits.annotation[[i]]),
+                mode = "all",
+                output = "epath")$epath[[1]], ,drop = FALSE]
+        if (!is.null(p)) p() # update progress if verbose
+        sp_edges
+    }
+    # wrap everything depending on verbosity
+    n_pairs <- nrow(peak_ol_anno_subset)
+    if (verbose) {
+        if (parallel) {
+            on.exit(message(
+                "Please do not forget to run ",
+                "future::plan(future::sequential) to release the resources"))
+            with_progress({
+                p <- progressor(steps = n_pairs)
+                sp <- future_lapply(seq_len(n_pairs),
+                    FUN = get_shortest_path_edges,
+                    p = p,
+                    future.seed = TRUE,
+                    future.chunk.size = 1)
+            })
+        } else {
+            with_progress({
+                p <- progressor(steps = n_pairs)
+                sp <- lapply(seq_len(n_pairs), get_shortest_path_edges, p = p)
+            })
+        }
     } else {
-      with_progress({
-        p <- progressor(steps = n_pairs)
-        sp <- lapply(seq_len(n_pairs), get_shortest_path_edges, p = p)
-      })
+        # choose the apply function based on `parallel`
+        apply_fun <- if (parallel) future_lapply else lapply
+        args <- list(X = seq_len(n_pairs), FUN = get_shortest_path_edges)
+        if (parallel) args$future.seed <- TRUE
+        sp <- do.call(apply_fun, args)
     }
-  } else {
-    # choose the apply function based on `parallel`
-    apply_fun <- if (parallel) future_lapply else lapply
-    args <- list(X = seq_len(n_pairs), FUN = get_shortest_path_edges)
-    if (parallel) {
-      args$future.seed <- TRUE
-    }
-    sp <- do.call(apply_fun, args)
-  }
-
-  names(sp) <- apply(peak_ol_anno_subset, 1, paste, collapse = ",")
-  sp
+    names(sp) <- apply(peak_ol_anno_subset, 1, paste, collapse = ",")
+    sp
 }
 
 # ============================================================================
@@ -320,47 +298,117 @@ find_shortest_path <- function(peak_ol_anno, interaction_graph,
 #' @importFrom S4Vectors mcols mcols<-
 #' @importFrom BiocGenerics start end strand
 annotate_peaks_with_clusters <- function(
-  peaks,
-  peak_ol_anno,
-  evidences,
-  annoData,
-  interRegion
+        peaks,
+        peak_ol_anno,
+        evidences,
+        annoData,
+        interRegion
 ) {
-  annoted_peaks <- peaks[peak_ol_anno$queryHits.peak]
-  annotations <- annoData[peak_ol_anno$queryHits.annotation]
-  annoted_peaks$feature_name <- names(annotations)
-  annoted_peaks$feature_start <- start(annotations)
-  annoted_peaks$feature_end <- end(annotations)
-  annoted_peaks$feature_strand <- strand(annotations)
-  mcols(annoted_peaks) <- cbind(mcols(annoted_peaks), mcols(annotations))
-  annoted_peaks$peak_bin <-
-    as.character(interRegion[peak_ol_anno$subjectHits.peak])
-  annoted_peaks$feature_bin <-
-    as.character(interRegion[peak_ol_anno$subjectHits.annotation])
-  keep <- !duplicated(as.data.frame(annoted_peaks))
-  annoted_peaks <- annoted_peaks[keep]
-  peak_ol_anno <- peak_ol_anno[keep, , drop = FALSE]
-  if (length(evidences) > 0) {
-    annoted_peaks$evidences <- vapply(evidences, function(.ele) {
-      if (nrow(.ele)) {
-        paste(paste(interRegion[as.numeric(.ele[, 1])],
-          interRegion[as.numeric(.ele[, 2])],
-          sep = " | "
-        ), collapse = "; ")
-      } else {
-        ""
-      }
-    }, FUN.VALUE = character(1L))[
-      apply(
-        peak_ol_anno[, c(
-          "subjectHits.peak",
-          "subjectHits.annotation"
-        )], 1,
-        paste,
-        collapse = ","
-      )
-    ]
-  }
+    annoted_peaks <- peaks[peak_ol_anno$queryHits.peak]
+    annotations <- annoData[peak_ol_anno$queryHits.annotation]
+    annoted_peaks$feature_name <- names(annotations)
+    annoted_peaks$feature_start <- start(annotations)
+    annoted_peaks$feature_end <- end(annotations)
+    annoted_peaks$feature_strand <- strand(annotations)
+    mcols(annoted_peaks) <- cbind(mcols(annoted_peaks), mcols(annotations))
+    annoted_peaks$peak_bin <-
+        as.character(interRegion[peak_ol_anno$subjectHits.peak])
+    annoted_peaks$feature_bin <-
+        as.character(interRegion[peak_ol_anno$subjectHits.annotation])
+    keep <- !duplicated(as.data.frame(annoted_peaks))
+    annoted_peaks <- annoted_peaks[keep]
+    peak_ol_anno <- peak_ol_anno[keep, , drop = FALSE]
+    if (length(evidences) > 0) {
+        annoted_peaks$evidences <- vapply(evidences, function(.ele) {
+            if (nrow(.ele)) {
+                paste(paste(interRegion[as.numeric(.ele[, 1])],
+                    interRegion[as.numeric(.ele[, 2])],
+                    sep = " | "
+                ), collapse = "; ")
+            } else {
+                ""
+            }
+        }, FUN.VALUE = character(1L))[
+            apply(
+                peak_ol_anno[, c(
+                    "subjectHits.peak",
+                    "subjectHits.annotation"
+                )], 1,
+                paste,
+                collapse = ","
+            )
+        ]
+    }
+    return(annoted_peaks)
+}
 
-  return(annoted_peaks)
+verboseMessage <- function(verbose, step, totalSteps, g, num){
+    if(!verbose) return()
+    switch(step,
+        '1'=message("Step 1/", totalSteps,
+                ": Building interaction network graph..."),
+        '1.1'=message(sprintf(
+            "Graph has %d nodes and %d edges in %d clusters,
+            on average %f nodes in each cluster",
+            vcount(g$graph),
+            ecount(g$graph),
+            length(unique(g$clusters$cluster_id)),
+            vcount(g$graph) /
+                length(unique(g$clusters$cluster_id)))),
+        '2'=message("Step 2/", totalSteps,
+            ": Finding interaction anchors overlapping genes and peaks..."),
+        '3'=message("Step 3/", totalSteps,
+            ": Finding genes and peaks in the same cluster..."),
+        '4'=message("Step 4/", totalSteps,
+            ": Finding evidence of the annotation..."),
+        '5'=message("Step ", totalSteps, "/", totalSteps,
+            ": Annotating peaks with gene clusters..."),
+        '6'=message(sprintf(
+            "Annotated %d peaks with gene clusters",
+            num))
+        )
+}
+
+getWeight <- function(interactions){
+    weight <- mcols(interactions)$score
+    if (all(weight == weight[1])) weight <- NULL
+    return(weight)
+}
+
+graph_by_interaction <- function(interactions, cluster_method, ...){
+    # Extract interaction anchor regions
+    anchors <- anchorIds(interactions)
+    weight <- getWeight(interactions)
+    # Build interaction network using igraph
+    build_interaction_graph(anchors, weight, cluster_method, ...)
+}
+
+get_peak_ol_anno <- function(annoOL, peakOL, interaction_graph){
+    # convert interRegion hit id to cluster id
+    annoOL <- add_cluster_id(annoOL, interaction_graph$clusters)
+    peakOL <- add_cluster_id(peakOL, interaction_graph$clusters)
+    # merge genes hits and peaks hits by the cluster id
+    peak_ol_anno <- merge(
+        peakOL, annoOL,
+        by = "cluster_id", all = FALSE,
+        suffixes = c(".peak", ".annotation")
+    )
+}
+
+fix_g_name <- function(interaction_graph, interRegion){
+    g <- interaction_graph$graph
+    V(g)$name <- as.character(interRegion[as.numeric(V(g)$name)])
+    return(g)
+}
+
+fix_insteraction_name <- function(interaction_graph, interRegion){
+    interaction_graph$clusters$anchor_id <-
+        as.character(interRegion[as.numeric(
+            interaction_graph$clusters$anchor_id)])
+    return(interaction_graph)
+}
+
+msgNULL <- function(msg){
+    message(msg)
+    return(NULL)
 }

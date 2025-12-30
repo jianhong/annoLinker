@@ -16,41 +16,45 @@
 #' library(igraph)
 #' library(GenomicRanges)
 #' new("annoLinkerResult",
-#'   annotated_peaks = GRanges(),
-#'   graph = make_empty_graph(),
-#'   clusters = data.frame()
+#'     annotated_peaks = GRanges(),
+#'     graph = make_empty_graph(),
+#'     clusters = data.frame()
 #' )
 setClass("annoLinkerResult",
-  representation = representation(
-    annotated_peaks = "GRanges",
-    graph = "ANY",
-    clusters = "data.frame"
-  ),
-  validity = function(object) {
-    re <- NULL
-    mc <- mcols(object@annotated_peaks)
-    if (nrow(mc)) {
-      if (!all(c(
-        "feature_name",
-        "feature_start",
-        "feature_end",
-        "feature_strand",
-        "peak_bin",
-        "feature_bin"
-      ) %in% colnames(mc))) {
-        re <- c(re, "One of more of columns feature_name, feature_start, feature_end, feature_strand peak_bin, feature_bin, is missing for the annotated_peaks")
-      }
+    representation = representation(
+        annotated_peaks = "GRanges",
+        graph = "ANY",
+        clusters = "data.frame"
+    ),
+    validity = function(object) {
+        re <- NULL
+        mc <- mcols(object@annotated_peaks)
+        if (nrow(mc)) {
+            if (!all(c(
+                "feature_name",
+                "feature_start",
+                "feature_end",
+                "feature_strand",
+                "peak_bin",
+                "feature_bin"
+            ) %in% colnames(mc))) {
+                re <- c(re, "One of more of columns feature_name,
+                        feature_start, feature_end, feature_strand peak_bin,
+                        feature_bin, is missing for the annotated_peaks")
+            }
+        }
+        if (nrow(object@clusters)) {
+            if (!all(c("anchor_id", "cluster_id") %in%
+                colnames(object@clusters))) {
+                re <- c(re, "'anchor_id', 'cluster_id' is missing
+                        for the cluster slot.")
+            }
+        }
+        if (!inherits(object@graph, "igraph")) {
+            re <- c(re, "graph must be an object of 'igraph'")
+        }
+        re
     }
-    if (nrow(object@clusters)) {
-      if (!all(c("anchor_id", "cluster_id") %in% colnames(object@clusters))) {
-        re <- c(re, "'anchor_id', 'cluster_id' is missing for the cluster slot.")
-      }
-    }
-    if (!inherits(object@graph, "igraph")) {
-      re <- c(re, "graph must be an object of 'igraph'")
-    }
-    re
-  }
 )
 
 #' @name coerce
@@ -59,7 +63,7 @@ setClass("annoLinkerResult",
 #' @exportMethod coerce
 #' @importFrom methods coerce
 setAs(from = "annoLinkerResult", to = "GRanges", function(from) {
-  from@annotated_peaks
+    from@annotated_peaks
 })
 
 #' @rdname annoLinkerResult-class
@@ -67,9 +71,12 @@ setAs(from = "annoLinkerResult", to = "GRanges", function(from) {
 #' @param row.names,optional,... parameters used by \link[base]{as.data.frame}
 #' @exportMethod as.data.frame
 #' @aliases as.data.frame,annoLinkerResult-method
-setMethod("as.data.frame", signature(x = "annoLinkerResult"), function(x, row.names = NULL, optional = FALSE, ...) {
-  as.data.frame(x@annotated_peaks, ...)
-})
+setMethod(
+    "as.data.frame", signature(x = "annoLinkerResult"),
+    function(x, row.names = NULL, optional = FALSE, ...) {
+        as.data.frame(x@annotated_peaks, ...)
+    }
+)
 
 #' @export
 #' @rdname annoLinkerResult-class
@@ -78,7 +85,7 @@ setGeneric("anno_peaks", function(x) standardGeneric("anno_peaks"))
 #' @exportMethod anno_peaks
 #' @aliases anno_peaks,annoLinkerResult-method
 setMethod("anno_peaks", signature(x = "annoLinkerResult"), function(x) {
-  x@annotated_peaks
+    x@annotated_peaks
 })
 
 #' @export
@@ -88,7 +95,7 @@ setGeneric("anno_graph", function(x) standardGeneric("anno_graph"))
 #' @exportMethod anno_graph
 #' @aliases anno_graph,annoLinkerResult-method
 setMethod("anno_graph", signature(x = "annoLinkerResult"), function(x) {
-  x@graph
+    x@graph
 })
 
 #' @export
@@ -98,7 +105,7 @@ setGeneric("anno_clusters", function(x) standardGeneric("anno_clusters"))
 #' @exportMethod anno_clusters
 #' @aliases anno_clusters,annoLinkerResult-method
 setMethod("anno_clusters", signature(x = "annoLinkerResult"), function(x) {
-  x@clusters
+    x@clusters
 })
 
 #' @export
@@ -109,11 +116,11 @@ setGeneric("anno_evidence", function(x, i) standardGeneric("anno_evidence"))
 #' @param i Numeric, index value.
 #' @aliases anno_evidence,annoLinkerResult,numeric-method
 setMethod("anno_evidence", signature(x = "annoLinkerResult"), function(x, i) {
-  if (length(x@annotated_peaks$evidences)) {
-    x@annotated_peaks$evidences[i]
-  } else {
-    ""
-  }
+    if (length(x@annotated_peaks$evidences)) {
+        x@annotated_peaks$evidences[i]
+    } else {
+        ""
+    }
 })
 
 #' @export
@@ -123,13 +130,13 @@ setGeneric("anno_event", function(x, i) standardGeneric("anno_event"))
 #' @exportMethod anno_event
 #' @aliases anno_event,annoLinkerResult,numeric-method
 setMethod("anno_event", signature(x = "annoLinkerResult"), function(x, i) {
-  peaks <- x@annotated_peaks
-  if (length(peaks)) {
-    mcols(peaks) <- NULL
-    peaks[i]
-  } else {
-    GRanges()
-  }
+    peaks <- x@annotated_peaks
+    if (length(peaks)) {
+        mcols(peaks) <- NULL
+        peaks[i]
+    } else {
+        GRanges()
+    }
 })
 
 #' @export
@@ -141,18 +148,18 @@ setGeneric("anno_feature", function(x, i) standardGeneric("anno_feature"))
 #' @importFrom IRanges IRanges
 #' @importFrom GenomicRanges GRanges
 setMethod("anno_feature", signature(x = "annoLinkerResult"), function(x, i) {
-  peaks <- x@annotated_peaks
-  if (length(peaks)) {
-    GRanges(as.character(seqnames(peaks[i])),
-      IRanges(
-        peaks$feature_start[i],
-        peaks$feature_end[i]
-      ),
-      strand = peaks$feature_strand[i]
-    )
-  } else {
-    GRanges()
-  }
+    peaks <- x@annotated_peaks
+    if (length(peaks)) {
+        GRanges(as.character(seqnames(peaks[i])),
+            IRanges(
+                peaks$feature_start[i],
+                peaks$feature_end[i]
+            ),
+            strand = peaks$feature_strand[i]
+        )
+    } else {
+        GRanges()
+    }
 })
 
 #' @export
@@ -164,12 +171,12 @@ setGeneric("anno_peakbin", function(x, i) standardGeneric("anno_peakbin"))
 #' @importFrom IRanges IRanges
 #' @importFrom GenomicRanges GRanges
 setMethod("anno_peakbin", signature(x = "annoLinkerResult"), function(x, i) {
-  peaks <- x@annotated_peaks
-  if (length(peaks)) {
-    peaks$peak_bin[i]
-  } else {
-    ""
-  }
+    peaks <- x@annotated_peaks
+    if (length(peaks)) {
+        peaks$peak_bin[i]
+    } else {
+        ""
+    }
 })
 
 #' @export
@@ -181,19 +188,19 @@ setGeneric("anno_featurebin", function(x, i) standardGeneric("anno_featurebin"))
 #' @importFrom IRanges IRanges
 #' @importFrom GenomicRanges GRanges
 setMethod("anno_featurebin", signature(x = "annoLinkerResult"), function(x, i) {
-  peaks <- x@annotated_peaks
-  if (length(peaks)) {
-    peaks$feature_bin[i]
-  } else {
-    ""
-  }
+    peaks <- x@annotated_peaks
+    if (length(peaks)) {
+        peaks$feature_bin[i]
+    } else {
+        ""
+    }
 })
 
 #' @rdname annoLinkerResult-class
 #' @exportMethod length
 #' @aliases length,annoLinkerResult-method
 setMethod("length", signature(x = "annoLinkerResult"), function(x) {
-  length(x@annotated_peaks)
+    length(x@annotated_peaks)
 })
 
 #' @rdname annoLinkerResult-class
@@ -201,9 +208,10 @@ setMethod("length", signature(x = "annoLinkerResult"), function(x) {
 #' @importFrom methods show
 #' @aliases show,annoLinkerResult-method
 setMethod("show", signature(object = "annoLinkerResult"), function(object) {
-  cat("An object of annoLinkerResult with annotated_peaks and interaction graph.\n")
-  show(object@annotated_peaks)
-  show(object@graph)
+    cat("An object of annoLinkerResult
+        with annotated_peaks and interaction graph.\n")
+    show(object@annotated_peaks)
+    show(object@graph)
 })
 
 #' @rdname annoLinkerResult-class
@@ -211,5 +219,5 @@ setMethod("show", signature(object = "annoLinkerResult"), function(object) {
 #' @importFrom utils head
 #' @aliases head,annoLinkerResult,ANY-method
 setMethod("head", signature(x = "annoLinkerResult"), function(x, ...) {
-  head(x@annotated_peaks, ...)
+    head(x@annotated_peaks, ...)
 })
