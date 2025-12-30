@@ -1,3 +1,10 @@
+Changes in version 0.99.5
+
+  o update the installation section.
+  o remove unused code in vignettes.
+  o using BiocStyle for vignettes.
+  o update the code style.
+
 Changes in version 0.99.2
 
   o Add the scripts for extdata.

@@ -22,9 +22,10 @@ This approach enables the functional annotation of distal regulatory regions suc
 
 ### Install from GitHub
 ```{r}
-if (!requireNamespace("remotes")) install.packages("remotes")
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
 
-remotes::install_github("jianhong/annoLinker")
+BiocManager::install("annoLinker")
 ```
 
 ## Contributing

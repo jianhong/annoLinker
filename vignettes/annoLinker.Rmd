@@ -10,8 +10,7 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 output:
-  html_document:
-    theme: simplex
+  BiocStyle::html_document:
     toc: true
     toc_float: true
     toc_depth: 4
@@ -42,7 +41,7 @@ The package provides a streamlined workflow to link user-defined genomic regions
 if (!require("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
-BiocManager::install("jianhong/annoLinker")
+BiocManager::install("annoLinker")
 ```
 
 ## Quick start
@@ -78,7 +77,6 @@ The `plotEvidence()` function allows users to visualize the annotation evidence 
 
 ```{r datavisualization}
 ## plot the evidence for the first annotation
-n <- 1
 plotEvidence(anno, event=1,
              output='htmlWidget')
 plotEvidence(anno, event=1,

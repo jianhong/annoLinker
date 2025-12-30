@@ -58,7 +58,8 @@ annoLinker <- function(
   # Validate inputs
   bindingType <- match.arg(bindingType)
   cluster_method <- match.arg(cluster_method)
-  validate_inputs_graph(peaks, annoData, interactions, bindingRegion, interactionDistanceRange)
+  validate_inputs_graph(peaks, annoData, interactions,
+                        bindingRegion, interactionDistanceRange)
   totalSteps <- ifelse(addEvidence, 5, 4)
   if (verbose) {
     message("Step 1/", totalSteps, ": Building interaction network graph...")
