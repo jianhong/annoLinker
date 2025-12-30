@@ -15,17 +15,18 @@ validate_inputs_graph <- function(peaks, annoData, interactions,
     stop("'annoData' must be an annoGR or GRanges object", call. = FALSE)
   }
 
-  if(length(annoData)==0){
+  if (length(annoData) == 0) {
     stop("'annoData' is empty.", call. = FALSE)
   }
 
-  if(length(annoData)!=length(names(annoData))){
+  if (length(annoData) != length(names(annoData))) {
     stop("names of 'annoData' is missing!", call. = FALSE)
   }
 
   if (length(intersect(seqlevelsStyle(peaks), seqlevelsStyle(annoData))) < 1) {
     stop("Please check the seqlevels style of your 'peaks' and 'annoData'",
-         call. = FALSE)
+      call. = FALSE
+    )
   }
 
   if (!inherits(interactions, c("GRanges", "GInteractions", "Pairs"))) {
@@ -35,18 +36,24 @@ validate_inputs_graph <- function(peaks, annoData, interactions,
   if (is(interactions, "GRanges")) {
     if (length(interactions$blocks) == 0) {
       stop("If interactions is GRanges, the blocks metadata is required",
-           call. = FALSE)
+        call. = FALSE
+      )
     }
     if (any(elementNROWS(interactions$blocks) != 2)) {
       stop("If interactions is GRanges, the length of ",
-           "each metadata blocks must be 2.", call. = FALSE)
+        "each metadata blocks must be 2.",
+        call. = FALSE
+      )
     }
   }
 
-  if (length(intersect(seqlevelsStyle(peaks),
-                       seqlevelsStyle(first(interactions)))) < 1) {
+  if (length(intersect(
+    seqlevelsStyle(peaks),
+    seqlevelsStyle(first(interactions))
+  )) < 1) {
     stop("Please check the seqlevels style of your 'peaks' and 'interactions'",
-         call. = FALSE)
+      call. = FALSE
+    )
   }
 
   if (length(bindingRegion) != 2) {
@@ -55,7 +62,8 @@ validate_inputs_graph <- function(peaks, annoData, interactions,
 
   if (length(interactionDistanceRange) != 2) {
     stop("'interactionDistanceRange' must have exactly 2 elements",
-         call. = FALSE)
+      call. = FALSE
+    )
   }
 }
 
@@ -75,7 +83,7 @@ filterInteractions <- function(interactions, interactionDistanceRange) {
       interactions <- GInteractions(
         first(interactions),
         second(interactions),
-        score=mcols(interactions)$score
+        score = mcols(interactions)$score
       )
     }
     if (is(interactions, "GRanges")) {
@@ -114,13 +122,15 @@ filterInteractions <- function(interactions, interactionDistanceRange) {
 get_annotation_regions <- function(annoData, bindingType, bindingRegion) {
   switch(bindingType,
     body = {
-      s <- ifelse(as.character(strand(annoData))=='-',
-                  start(annoData) - bindingRegion[2],
-                  start(annoData) - abs(bindingRegion[1]))
-      s[s<1] <- 1
-      e <- ifelse(as.character(strand(annoData))=='-',
-                  end(annoData) + abs(bindingRegion[1]),
-                  end(annoData) + bindingRegion[2])
+      s <- ifelse(as.character(strand(annoData)) == "-",
+        start(annoData) - bindingRegion[2],
+        start(annoData) - abs(bindingRegion[1])
+      )
+      s[s < 1] <- 1
+      e <- ifelse(as.character(strand(annoData)) == "-",
+        end(annoData) + abs(bindingRegion[1]),
+        end(annoData) + bindingRegion[2]
+      )
       out <- annoData
       start(out) <- s
       end(out) <- e
@@ -157,8 +167,8 @@ build_interaction_graph <- function(anchors, weight, cluster_method, ...) {
     return(list(graph = NULL, clusters = NULL))
   }
 
-  if(!missing(weight)){
-    edge_list <- cbind(edge_list, weight=weight)
+  if (!missing(weight)) {
+    edge_list <- cbind(edge_list, weight = weight)
   }
 
   # Build graph
@@ -243,7 +253,7 @@ add_cluster_id <- function(hits, cluster_df) {
 #' @importFrom igraph shortest_paths as_edgelist
 #' @importFrom progressr with_progress progressor
 find_shortest_path <- function(peak_ol_anno, interaction_graph,
-                               parallel=FALSE, verbose=FALSE) {
+                               parallel = FALSE, verbose = FALSE) {
   peak_ol_anno_subset <- unique(peak_ol_anno[, c(
     "subjectHits.peak",
     "subjectHits.annotation"
@@ -255,44 +265,46 @@ find_shortest_path <- function(peak_ol_anno, interaction_graph,
       shortest_paths(
         interaction_graph$graph,
         from = as.character(peak_ol_anno_subset$subjectHits.peak[[i]]),
-        to   = as.character(peak_ol_anno_subset$subjectHits.annotation[[i]]),
+        to = as.character(peak_ol_anno_subset$subjectHits.annotation[[i]]),
         mode = "all",
         output = "epath"
-      )$epath[[1]],
-      ,
+      )$epath[[1]], ,
       drop = FALSE
     ]
 
-    if (!is.null(p)) p()  # update progress if verbose
+    if (!is.null(p)) p() # update progress if verbose
 
     sp_edges
   }
 
   # wrap everything depending on verbosity
   n_pairs <- nrow(peak_ol_anno_subset)
-  if(verbose){
-    if(parallel){
-      on.exit(message('Please do not forget to run ',
-      'future::plan(future::sequential) to release the resources'))
+  if (verbose) {
+    if (parallel) {
+      on.exit(message(
+        "Please do not forget to run ",
+        "future::plan(future::sequential) to release the resources"
+      ))
       with_progress({
         p <- progressor(steps = n_pairs)
         sp <- future_lapply(seq_len(n_pairs),
-                            FUN=get_shortest_path_edges,
-                            p=p,
-                            future.seed=TRUE,
-                            future.chunk.size = 1)
+          FUN = get_shortest_path_edges,
+          p = p,
+          future.seed = TRUE,
+          future.chunk.size = 1
+        )
       })
-    }else{
+    } else {
       with_progress({
         p <- progressor(steps = n_pairs)
-        sp <- lapply(seq_len(n_pairs), get_shortest_path_edges, p=p)
+        sp <- lapply(seq_len(n_pairs), get_shortest_path_edges, p = p)
       })
     }
-  }else{
+  } else {
     # choose the apply function based on `parallel`
     apply_fun <- if (parallel) future_lapply else lapply
-    args <- list(X=seq_len(n_pairs), FUN=get_shortest_path_edges)
-    if(parallel){
+    args <- list(X = seq_len(n_pairs), FUN = get_shortest_path_edges)
+    if (parallel) {
       args$future.seed <- TRUE
     }
     sp <- do.call(apply_fun, args)
@@ -327,13 +339,13 @@ annotate_peaks_with_clusters <- function(
     as.character(interRegion[peak_ol_anno$subjectHits.annotation])
   keep <- !duplicated(as.data.frame(annoted_peaks))
   annoted_peaks <- annoted_peaks[keep]
-  peak_ol_anno <- peak_ol_anno[keep, , drop=FALSE]
-  if(length(evidences)>0){
+  peak_ol_anno <- peak_ol_anno[keep, , drop = FALSE]
+  if (length(evidences) > 0) {
     annoted_peaks$evidences <- vapply(evidences, function(.ele) {
       if (nrow(.ele)) {
         paste(paste(interRegion[as.numeric(.ele[, 1])],
-                    interRegion[as.numeric(.ele[, 2])],
-                    sep = " | "
+          interRegion[as.numeric(.ele[, 2])],
+          sep = " | "
         ), collapse = "; ")
       } else {
         ""

@@ -35,12 +35,12 @@
 #' @examples
 #' ## read the peaks and interactions
 #' library(rtracklayer)
-#' extPath <- system.file('extdata', package='annoLinker')
-#' peaks <- rtracklayer::import(file.path(extPath, 'peaks.bed'))
-#' interactions <- rtracklayer::import(file.path(extPath, 'interaction.bedpe'))
+#' extPath <- system.file("extdata", package = "annoLinker")
+#' peaks <- rtracklayer::import(file.path(extPath, "peaks.bed"))
+#' interactions <- rtracklayer::import(file.path(extPath, "interaction.bedpe"))
 #' library(TxDb.Drerio.UCSC.danRer10.refGene)
 #' annoData <- genes(TxDb.Drerio.UCSC.danRer10.refGene)
-#' anno <- annoLinker(peaks, annoData, interactions, verbose=TRUE)
+#' anno <- annoLinker(peaks, annoData, interactions, verbose = TRUE)
 annoLinker <- function(
   peaks,
   annoData,
@@ -58,8 +58,10 @@ annoLinker <- function(
   # Validate inputs
   bindingType <- match.arg(bindingType)
   cluster_method <- match.arg(cluster_method)
-  validate_inputs_graph(peaks, annoData, interactions,
-                        bindingRegion, interactionDistanceRange)
+  validate_inputs_graph(
+    peaks, annoData, interactions,
+    bindingRegion, interactionDistanceRange
+  )
   totalSteps <- ifelse(addEvidence, 5, 4)
   if (verbose) {
     message("Step 1/", totalSteps, ": Building interaction network graph...")
@@ -69,7 +71,7 @@ annoLinker <- function(
   # Extract interaction anchor regions
   anchors <- anchorIds(interactions)
   weight <- mcols(interactions)$score
-  if(all(weight==weight[1])){
+  if (all(weight == weight[1])) {
     weight <- NULL
   }
   # Build interaction network using igraph
@@ -96,8 +98,10 @@ annoLinker <- function(
     ))
   }
   if (verbose) {
-    message("Step 2/", totalSteps,
-            ": Finding interaction anchors overlapping genes and peaks...")
+    message(
+      "Step 2/", totalSteps,
+      ": Finding interaction anchors overlapping genes and peaks..."
+    )
   }
   interRegion <- regions(interactions)
   # Find peaks that overlap with any anchor region
@@ -117,8 +121,10 @@ annoLinker <- function(
   }
 
   if (verbose) {
-    message("Step 3/", totalSteps,
-            ": Finding genes and peaks in the same cluster...")
+    message(
+      "Step 3/", totalSteps,
+      ": Finding genes and peaks in the same cluster..."
+    )
   }
   # convert interRegion hit id to cluster id
   annoOL <- add_cluster_id(annoOL, interaction_graph$clusters)
@@ -134,21 +140,27 @@ annoLinker <- function(
     return(NULL)
   }
 
-  if(addEvidence){
+  if (addEvidence) {
     if (verbose) {
-      message("Step 4/", totalSteps,
-              ": Finding evidence of the annotation...")
+      message(
+        "Step 4/", totalSteps,
+        ": Finding evidence of the annotation..."
+      )
     }
-    evidences <- find_shortest_path(peak_ol_anno, interaction_graph,
-                                    parallel, verbose)
-  }else{
+    evidences <- find_shortest_path(
+      peak_ol_anno, interaction_graph,
+      parallel, verbose
+    )
+  } else {
     evidences <- NULL
   }
 
 
   if (verbose) {
-    message("Step ", totalSteps, "/", totalSteps,
-            ": Annotating peaks with gene clusters...")
+    message(
+      "Step ", totalSteps, "/", totalSteps,
+      ": Annotating peaks with gene clusters..."
+    )
   }
 
   annotated_peaks <- annotate_peaks_with_clusters(
@@ -172,7 +184,7 @@ annoLinker <- function(
     as.character(interRegion[as.numeric(interaction_graph$clusters$anchor_id)])
 
   return(
-    new('annoLinkerResult',
+    new("annoLinkerResult",
       annotated_peaks = annotated_peaks,
       graph = g,
       clusters = interaction_graph$clusters

@@ -38,8 +38,9 @@ The package provides a streamlined workflow to link user-defined genomic regions
 ## Installation
 
 ```{r installation, eval=FALSE}
-if (!require("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
+if (!require("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager")
+}
 
 BiocManager::install("annoLinker")
 ```
@@ -59,30 +60,34 @@ library(TxDb.Drerio.UCSC.danRer10.refGene)
 library(org.Dr.eg.db)
 txdb <- TxDb.Drerio.UCSC.danRer10.refGene
 org <- org.Dr.eg.db
-extPath <- system.file('extdata', package='annoLinker')
+extPath <- system.file("extdata", package = "annoLinker")
 ## load peaks
-peaks <- rtracklayer::import(file.path(extPath, 'peaks.bed'))
+peaks <- rtracklayer::import(file.path(extPath, "peaks.bed"))
 ## load interactions
-interactions <- rtracklayer::import(file.path(extPath, 'interaction.bedpe'))
+interactions <- rtracklayer::import(file.path(extPath, "interaction.bedpe"))
 ## load annotation data
 annoData <- genes(txdb)
-anno <- annoLinker(peaks, annoData, interactions, verbose=TRUE)
+anno <- annoLinker(peaks, annoData, interactions, verbose = TRUE)
 class(anno)
-head(anno, n=2)
+head(anno, n = 2)
 anno_peaks(anno)[c(1, 2)]
-head(as(anno, 'GRanges'), n=2)
+head(as(anno, "GRanges"), n = 2)
 ```
 
 The `plotEvidence()` function allows users to visualize the annotation evidence chain, illustrating how genomic regions are linked through chromatin interactions. Users can plot the annotation evidence as either a *network graph* or a *genomic track* integrated with gene annotation information.
 
 ```{r datavisualization}
 ## plot the evidence for the first annotation
-plotEvidence(anno, event=1,
-             output='htmlWidget')
-plotEvidence(anno, event=1,
-             output='trackPlot',
-             txdb=TxDb.Drerio.UCSC.danRer10.refGene,
-             org=org.Dr.eg.db)
+plotEvidence(anno,
+  event = 1,
+  output = "htmlWidget"
+)
+plotEvidence(anno,
+  event = 1,
+  output = "trackPlot",
+  txdb = TxDb.Drerio.UCSC.danRer10.refGene,
+  org = org.Dr.eg.db
+)
 ```
 
 
