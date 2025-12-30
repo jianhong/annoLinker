@@ -3,7 +3,7 @@ pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   annoLinker: annoLinker.html
-last_built: 2025-12-30T13:24Z
+last_built: 2025-12-30T13:28Z
 urls:
   reference: https://jianhong.github.io/annoLinker/reference
   article: https://jianhong.github.io/annoLinker/articles
