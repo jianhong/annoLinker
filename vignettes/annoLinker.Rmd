@@ -25,12 +25,6 @@ output:
 ---
 
 ```{r setup, echo=FALSE, results="hide", warning=FALSE}
-suppressPackageStartupMessages({
-    library(annoLinker)
-    library(rtracklayer)
-    library(TxDb.Drerio.UCSC.danRer10.refGene)
-    library(org.Dr.eg.db)
-})
 knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 ```
 
@@ -88,11 +82,13 @@ The output is returned as an `annoLinkerResult` object, which can be easily
 converted into a `GRanges` or `data.frame` for downstream analysis and
 visualization.
 
-```{r quickstart}
+```{r loadlibrary,warning = FALSE,message=FALSE}
 library(annoLinker)
 library(rtracklayer)
 library(TxDb.Drerio.UCSC.danRer10.refGene)
 library(org.Dr.eg.db)
+```
+```{r quickstart}
 txdb <- TxDb.Drerio.UCSC.danRer10.refGene
 org <- org.Dr.eg.db
 extPath <- system.file("extdata", package = "annoLinker")
