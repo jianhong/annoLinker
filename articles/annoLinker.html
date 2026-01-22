@@ -36,7 +36,7 @@ through chromatin interaction links
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">annoLinker</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.7</span>
       </span>
     </div>
 
@@ -77,7 +77,7 @@ regions through chromatin interaction links</p>
                         <h4 data-toc-skip class="author">Jianhong
 Ou</h4>
             
-            <h4 data-toc-skip class="date">30 December 2025</h4>
+            <h4 data-toc-skip class="date">22 January 2026</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/jianhong/annoLinker/blob/devel/vignettes/annoLinker.Rmd" class="external-link"><code>vignettes/annoLinker.Rmd</code></a></small>
       <div class="hidden name"><code>annoLinker.Rmd</code></div>
@@ -157,8 +157,9 @@ which can be easily converted into a <code>GRanges</code> or
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/jianhong/annoLinker" class="external-link">annoLinker</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">rtracklayer</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">TxDb.Drerio.UCSC.danRer10.refGene</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">org.Dr.eg.db</span><span class="op">)</span></span>
-<span><span class="va">txdb</span> <span class="op">&lt;-</span> <span class="va">TxDb.Drerio.UCSC.danRer10.refGene</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">org.Dr.eg.db</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">txdb</span> <span class="op">&lt;-</span> <span class="va">TxDb.Drerio.UCSC.danRer10.refGene</span></span>
 <span><span class="va">org</span> <span class="op">&lt;-</span> <span class="va">org.Dr.eg.db</span></span>
 <span><span class="va">extPath</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"annoLinker"</span><span class="op">)</span></span>
 <span><span class="co">## load peaks</span></span>
@@ -172,7 +173,7 @@ which can be easily converted into a <code>GRanges</code> or
 <pre><code><span><span class="co">## [1] "annoLinkerResult"</span></span>
 <span><span class="co">## attr(,"package")</span></span>
 <span><span class="co">## [1] "annoLinker"</span></span></code></pre>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">anno</span>, n <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## GRanges object with 2 ranges and 7 metadata columns:</span></span>
 <span><span class="co">##       seqnames            ranges strand | feature_name feature_start</span></span>
@@ -189,7 +190,7 @@ which can be easily converted into a <code>GRanges</code> or
 <span><span class="co">##   [2] chr1:45050001-45060000</span></span>
 <span><span class="co">##   -------</span></span>
 <span><span class="co">##   seqinfo: 2 sequences from an unspecified genome; no seqlengths</span></span></code></pre>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/annoLinkerResult-class.html">anno_peaks</a></span><span class="op">(</span><span class="va">anno</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
 <pre><code><span><span class="co">## GRanges object with 2 ranges and 7 metadata columns:</span></span>
 <span><span class="co">##       seqnames            ranges strand | feature_name feature_start</span></span>
@@ -206,7 +207,7 @@ which can be easily converted into a <code>GRanges</code> or
 <span><span class="co">##   [2] chr1:45050001-45060000</span></span>
 <span><span class="co">##   -------</span></span>
 <span><span class="co">##   seqinfo: 2 sequences from an unspecified genome; no seqlengths</span></span></code></pre>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/methods/as.html" class="external-link">as</a></span><span class="op">(</span><span class="va">anno</span>, <span class="st">"GRanges"</span><span class="op">)</span>, n <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## GRanges object with 2 ranges and 7 metadata columns:</span></span>
 <span><span class="co">##       seqnames            ranges strand | feature_name feature_start</span></span>
@@ -228,14 +229,14 @@ the annotation evidence chain, illustrating how genomic regions are
 linked through chromatin interactions. Users can plot the annotation
 evidence as either a <em>network graph</em> or a <em>genomic track</em>
 integrated with gene annotation information.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## plot the evidence for the first annotation</span></span>
 <span><span class="fu"><a href="../reference/plotEvidence.html">plotEvidence</a></span><span class="op">(</span><span class="va">anno</span>,</span>
 <span>    event <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>    output <span class="op">=</span> <span class="st">"htmlWidget"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <div class="visNetwork html-widget html-fill-item" id="htmlwidget-ac96cb3ee4656e2e9ec3" style="width:700px;height:432.632880098888px;"></div>
-<script type="application/json" data-for="htmlwidget-ac96cb3ee4656e2e9ec3">{"x":{"nodes":{"id":["chr1:45130001-45140000","chr1:45050001-45060000","chr1:44900001-44910000","chr1:45060001-45070000","chr1:45040001-45050000","chr1:44550001-44560000","chr1:45160001-45170000","chr1:44280001-44290000","chr1:43450001-43460000","chr1:44660001-44670000","chr1:46800001-46810000","chr1:46270001-46280000","chr1:45290001-45300000","chr1:45062825-45063844","chr1:44660095-44674627:+"],"label":["chr1:45130001-45140000","chr1:45050001-45060000","chr1:44900001-44910000","chr1:45060001-45070000","chr1:45040001-45050000","chr1:44550001-44560000","chr1:45160001-45170000","chr1:44280001-44290000","chr1:43450001-43460000","chr1:44660001-44670000","chr1:46800001-46810000","chr1:46270001-46280000","chr1:45290001-45300000","peak","feature"],"title":["chr1:45130001-45140000","chr1:45050001-45060000","chr1:44900001-44910000","chr1:45060001-45070000","chr1:45040001-45050000","chr1:44550001-44560000","chr1:45160001-45170000","chr1:44280001-44290000","chr1:43450001-43460000","chr1:44660001-44670000","chr1:46800001-46810000","chr1:46270001-46280000","chr1:45290001-45300000","chr1:45062825-45063844","chr1:44660095-44674627:+"],"color":["lightgray","lightgray","lightgray","tomato","tomato","lightgray","lightgray","lightgray","lightgray","tomato","lightgray","tomato","lightgray","darkgreen","brown"],"size":[15,15,15,20,20,15,15,15,15,20,15,20,15,25,25]},"edges":{"from":["chr1:45130001-45140000","chr1:45130001-45140000","chr1:44900001-44910000","chr1:44900001-44910000","chr1:44900001-44910000","chr1:45040001-45050000","chr1:45130001-45140000","chr1:45160001-45170000","chr1:45130001-45140000","chr1:45060001-45070000","chr1:45040001-45050000","chr1:45040001-45050000","chr1:45060001-45070000","chr1:44660001-44670000"],"to":["chr1:45050001-45060000","chr1:44550001-44560000","chr1:45160001-45170000","chr1:44280001-44290000","chr1:43450001-43460000","chr1:44660001-44670000","chr1:46800001-46810000","chr1:46800001-46810000","chr1:46270001-46280000","chr1:46270001-46280000","chr1:46270001-46280000","chr1:45290001-45300000","chr1:45062825-45063844","chr1:44660095-44674627:+"]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot"},"manipulation":{"enabled":false}},"groups":null,"width":null,"height":null,"idselection":{"enabled":true,"style":"width: 150px; height: 26px","useLabels":true,"main":"Select by id"},"byselection":{"enabled":false,"style":"width: 150px; height: 26px","multiple":false,"hideColor":"rgba(200,200,200,0.5)","highlight":false},"main":null,"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)","highlight":{"enabled":true,"hoverNearest":false,"degree":1,"algorithm":"all","hideColor":"rgba(200,200,200,0.5)","labelOnly":true},"collapse":{"enabled":false,"fit":false,"resetHighlight":true,"clusterOptions":null,"keepCoord":true,"labelSuffix":"(cluster)"}},"evals":[],"jsHooks":[]}</script><div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<script type="application/json" data-for="htmlwidget-ac96cb3ee4656e2e9ec3">{"x":{"nodes":{"id":["chr1:45130001-45140000","chr1:45050001-45060000","chr1:44900001-44910000","chr1:45060001-45070000","chr1:45040001-45050000","chr1:44550001-44560000","chr1:45160001-45170000","chr1:44280001-44290000","chr1:43450001-43460000","chr1:44660001-44670000","chr1:46800001-46810000","chr1:46270001-46280000","chr1:45290001-45300000","chr1:45062825-45063844","chr1:44660095-44674627:+"],"label":["chr1:45130001-45140000","chr1:45050001-45060000","chr1:44900001-44910000","chr1:45060001-45070000","chr1:45040001-45050000","chr1:44550001-44560000","chr1:45160001-45170000","chr1:44280001-44290000","chr1:43450001-43460000","chr1:44660001-44670000","chr1:46800001-46810000","chr1:46270001-46280000","chr1:45290001-45300000","peak","feature"],"title":["chr1:45130001-45140000","chr1:45050001-45060000","chr1:44900001-44910000","chr1:45060001-45070000","chr1:45040001-45050000","chr1:44550001-44560000","chr1:45160001-45170000","chr1:44280001-44290000","chr1:43450001-43460000","chr1:44660001-44670000","chr1:46800001-46810000","chr1:46270001-46280000","chr1:45290001-45300000","chr1:45062825-45063844","chr1:44660095-44674627:+"],"color":["lightgray","lightgray","lightgray","tomato","tomato","lightgray","lightgray","lightgray","lightgray","tomato","lightgray","tomato","lightgray","darkgreen","brown"],"size":[15,15,15,20,20,15,15,15,15,20,15,20,15,25,25]},"edges":{"from":["chr1:45130001-45140000","chr1:45130001-45140000","chr1:44900001-44910000","chr1:44900001-44910000","chr1:44900001-44910000","chr1:45040001-45050000","chr1:45130001-45140000","chr1:45160001-45170000","chr1:45130001-45140000","chr1:45060001-45070000","chr1:45040001-45050000","chr1:45040001-45050000","chr1:45060001-45070000","chr1:44660001-44670000"],"to":["chr1:45050001-45060000","chr1:44550001-44560000","chr1:45160001-45170000","chr1:44280001-44290000","chr1:43450001-43460000","chr1:44660001-44670000","chr1:46800001-46810000","chr1:46800001-46810000","chr1:46270001-46280000","chr1:46270001-46280000","chr1:46270001-46280000","chr1:45290001-45300000","chr1:45062825-45063844","chr1:44660095-44674627:+"]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot"},"manipulation":{"enabled":false}},"groups":null,"width":null,"height":null,"idselection":{"enabled":true,"style":"width: 150px; height: 26px","useLabels":true,"main":"Select by id"},"byselection":{"enabled":false,"style":"width: 150px; height: 26px","multiple":false,"hideColor":"rgba(200,200,200,0.5)","highlight":false},"main":null,"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)","highlight":{"enabled":true,"hoverNearest":false,"degree":1,"algorithm":"all","hideColor":"rgba(200,200,200,0.5)","labelOnly":true},"collapse":{"enabled":false,"fit":false,"resetHighlight":true,"clusterOptions":null,"keepCoord":true,"labelSuffix":"(cluster)"}},"evals":[],"jsHooks":[]}</script><div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotEvidence.html">plotEvidence</a></span><span class="op">(</span><span class="va">anno</span>,</span>
 <span>    event <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>    output <span class="op">=</span> <span class="st">"trackPlot"</span>,</span>
@@ -248,7 +249,7 @@ integrated with gene annotation information.</p>
 <div class="section level2">
 <h2 id="sessioninfo">SessionInfo<a class="anchor" aria-label="anchor" href="#sessioninfo"></a>
 </h2>
-<pre><code><span><span class="co">## R Under development (unstable) (2025-12-28 r89254)</span></span>
+<pre><code><span><span class="co">## R Under development (unstable) (2026-01-18 r89306)</span></span>
 <span><span class="co">## Platform: x86_64-pc-linux-gnu</span></span>
 <span><span class="co">## Running under: Ubuntu 24.04.3 LTS</span></span>
 <span><span class="co">## </span></span>
@@ -284,39 +285,39 @@ integrated with gene annotation information.</p>
 <span><span class="co">## [10] S4Vectors_0.49.0                       </span></span>
 <span><span class="co">## [11] BiocGenerics_0.57.0                    </span></span>
 <span><span class="co">## [12] generics_0.1.4                         </span></span>
-<span><span class="co">## [13] annoLinker_0.99.6                      </span></span>
+<span><span class="co">## [13] annoLinker_0.99.7                      </span></span>
 <span><span class="co">## [14] BiocStyle_2.39.0                       </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## loaded via a namespace (and not attached):</span></span>
 <span><span class="co">##   [1] strawr_0.0.92               RColorBrewer_1.1-3         </span></span>
-<span><span class="co">##   [3] rstudioapi_0.17.1           jsonlite_2.0.0             </span></span>
+<span><span class="co">##   [3] rstudioapi_0.18.0           jsonlite_2.0.0             </span></span>
 <span><span class="co">##   [5] magrittr_2.0.4              farver_2.1.2               </span></span>
 <span><span class="co">##   [7] rmarkdown_2.30              fs_1.6.6                   </span></span>
 <span><span class="co">##   [9] BiocIO_1.21.0               ragg_1.5.0                 </span></span>
-<span><span class="co">##  [11] vctrs_0.6.5                 memoise_2.0.1              </span></span>
+<span><span class="co">##  [11] vctrs_0.7.0                 memoise_2.0.1              </span></span>
 <span><span class="co">##  [13] Rsamtools_2.27.0            RCurl_1.98-1.17            </span></span>
 <span><span class="co">##  [15] base64enc_0.1-3             htmltools_0.5.9            </span></span>
 <span><span class="co">##  [17] S4Arrays_1.11.1             progress_1.2.3             </span></span>
 <span><span class="co">##  [19] curl_7.0.0                  Rhdf5lib_1.33.0            </span></span>
 <span><span class="co">##  [21] rhdf5_2.55.12               SparseArray_1.11.10        </span></span>
 <span><span class="co">##  [23] Formula_1.2-5               sass_0.4.10                </span></span>
-<span><span class="co">##  [25] parallelly_1.46.0           bslib_0.9.0                </span></span>
+<span><span class="co">##  [25] parallelly_1.46.1           bslib_0.9.0                </span></span>
 <span><span class="co">##  [27] htmlwidgets_1.6.4           desc_1.4.3                 </span></span>
 <span><span class="co">##  [29] Gviz_1.55.0                 httr2_1.2.2                </span></span>
 <span><span class="co">##  [31] cachem_1.1.0                GenomicAlignments_1.47.0   </span></span>
-<span><span class="co">##  [33] igraph_2.2.1                lifecycle_1.0.4            </span></span>
+<span><span class="co">##  [33] igraph_2.2.1                lifecycle_1.0.5            </span></span>
 <span><span class="co">##  [35] pkgconfig_2.0.3             Matrix_1.7-4               </span></span>
 <span><span class="co">##  [37] R6_2.6.1                    fastmap_1.2.0              </span></span>
-<span><span class="co">##  [39] MatrixGenerics_1.23.0       future_1.68.0              </span></span>
+<span><span class="co">##  [39] MatrixGenerics_1.23.0       future_1.69.0              </span></span>
 <span><span class="co">##  [41] digest_0.6.39               colorspace_2.1-2           </span></span>
-<span><span class="co">##  [43] textshaping_1.0.4           Hmisc_5.2-4                </span></span>
+<span><span class="co">##  [43] textshaping_1.0.4           Hmisc_5.2-5                </span></span>
 <span><span class="co">##  [45] RSQLite_2.4.5               filelock_1.0.3             </span></span>
 <span><span class="co">##  [47] progressr_0.18.0            httr_1.4.7                 </span></span>
 <span><span class="co">##  [49] abind_1.4-8                 compiler_4.6.0             </span></span>
 <span><span class="co">##  [51] bit64_4.6.0-1               backports_1.5.0            </span></span>
 <span><span class="co">##  [53] htmlTable_2.4.3             S7_0.2.1                   </span></span>
 <span><span class="co">##  [55] BiocParallel_1.45.0         DBI_1.2.3                  </span></span>
-<span><span class="co">##  [57] biomaRt_2.67.0              rappdirs_0.3.3             </span></span>
+<span><span class="co">##  [57] biomaRt_2.67.1              rappdirs_0.3.4             </span></span>
 <span><span class="co">##  [59] DelayedArray_0.37.0         rjson_0.2.23               </span></span>
 <span><span class="co">##  [61] tools_4.6.0                 foreign_0.8-90             </span></span>
 <span><span class="co">##  [63] otel_0.2.0                  future.apply_1.20.1        </span></span>
@@ -332,29 +333,29 @@ integrated with gene annotation information.</p>
 <span><span class="co">##  [83] BiocFileCache_3.1.0         lattice_0.22-7             </span></span>
 <span><span class="co">##  [85] deldir_2.0-4                bit_4.6.0                  </span></span>
 <span><span class="co">##  [87] biovizBase_1.59.0           tidyselect_1.2.1           </span></span>
-<span><span class="co">##  [89] Biostrings_2.79.3           knitr_1.51                 </span></span>
+<span><span class="co">##  [89] Biostrings_2.79.4           knitr_1.51                 </span></span>
 <span><span class="co">##  [91] gridExtra_2.3               bookdown_0.46              </span></span>
 <span><span class="co">##  [93] ProtGenerics_1.43.0         SummarizedExperiment_1.41.0</span></span>
-<span><span class="co">##  [95] xfun_0.55                   matrixStats_1.5.0          </span></span>
+<span><span class="co">##  [95] xfun_0.56                   matrixStats_1.5.0          </span></span>
 <span><span class="co">##  [97] visNetwork_2.1.4            stringi_1.8.7              </span></span>
 <span><span class="co">##  [99] UCSC.utils_1.7.1            lazyeval_0.2.2             </span></span>
 <span><span class="co">## [101] yaml_2.3.12                 evaluate_1.0.5             </span></span>
 <span><span class="co">## [103] codetools_0.2-20            cigarillo_1.1.0            </span></span>
-<span><span class="co">## [105] interp_1.1-6                tibble_3.3.0               </span></span>
+<span><span class="co">## [105] interp_1.1-6                tibble_3.3.1               </span></span>
 <span><span class="co">## [107] BiocManager_1.30.27         cli_3.6.5                  </span></span>
 <span><span class="co">## [109] rpart_4.1.24                systemfonts_1.3.1          </span></span>
 <span><span class="co">## [111] jquerylib_0.1.4             dichromat_2.0-0.1          </span></span>
-<span><span class="co">## [113] Rcpp_1.1.0.8.1              GenomeInfoDb_1.47.2        </span></span>
+<span><span class="co">## [113] Rcpp_1.1.1                  GenomeInfoDb_1.47.2        </span></span>
 <span><span class="co">## [115] globals_0.18.0              grImport_0.9-7             </span></span>
 <span><span class="co">## [117] dbplyr_2.5.1                png_0.1-8                  </span></span>
 <span><span class="co">## [119] XML_3.99-0.20               parallel_4.6.0             </span></span>
 <span><span class="co">## [121] pkgdown_2.2.0               ggplot2_4.0.1              </span></span>
-<span><span class="co">## [123] blob_1.2.4                  prettyunits_1.2.0          </span></span>
+<span><span class="co">## [123] blob_1.3.0                  prettyunits_1.2.0          </span></span>
 <span><span class="co">## [125] jpeg_0.1-11                 latticeExtra_0.6-31        </span></span>
 <span><span class="co">## [127] AnnotationFilter_1.35.0     bitops_1.0-9               </span></span>
 <span><span class="co">## [129] txdbmaker_1.7.3             listenv_0.10.0             </span></span>
 <span><span class="co">## [131] VariantAnnotation_1.57.1    scales_1.4.0               </span></span>
-<span><span class="co">## [133] crayon_1.5.3                rlang_1.1.6                </span></span>
+<span><span class="co">## [133] crayon_1.5.3                rlang_1.1.7                </span></span>
 <span><span class="co">## [135] KEGGREST_1.51.1</span></span></code></pre>
 </div>
   </div>
